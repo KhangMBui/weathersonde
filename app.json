@@ -9,9 +9,20 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show the map."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyCRbZ411KLzycj6LXtr6Gpk8AjUh_SaGFg"
+      },
       "supportsTablet": true
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCRbZ411KLzycj6LXtr6Gpk8AjUh_SaGFg"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
