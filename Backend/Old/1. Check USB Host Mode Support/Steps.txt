@@ -1,0 +1,23 @@
+1. Create an Android Project in Android Studio
+2. Modify the AndroidManifest.xml file
+3. Write Java code to check USB Host Mode support
+4. Run the app and verify the result
+
+Step 1:  Add USB Host Feature in AndroidManifest.xml
+Before checking, declare USB Host Mode in the manifest:
+This ensures your app can detect USB Host Mode.
+
+
+ Step 2: Write Java Code to Check USB Host Mode
+Now, create a Java class (MainActivity.java) and add the code.
+
+
+Step 3: Create the UI Layout
+Open res/layout/activity_main.xml
+Add a TextView to display the result
+
+Step 4: Run the App & Check Output
+ Expected Output on a device with USB Host Mode:
+✅ "USB Host Mode is Supported!"
+ Expected Output on a device WITHOUT USB Host Mode:
+❌ "USB Host Mode is NOT Supported!"

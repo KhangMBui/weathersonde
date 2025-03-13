@@ -1,0 +1,54 @@
+To request permissions for a USB device on Android, you will need to follow these steps:
+
+Step 1: Declare USB Permission in AndroidManifest.xml
+First, ensure that you declare the necessary permissions for accessing the USB device. These permissions are required for your app to interact with USB devices.
+
+
+android.permission.USB_PERMISSION: This is a custom permission that is required for requesting access to USB devices.
+
+
+Step 2: Implement USB Device Permission Request in Java
+
+Now that you have declared the required permissions in the manifest, you need to handle the logic for requesting USB device permission in your app.
+
+Initialize the UsbManager.
+Check if the device is connected.
+Request permission to access the USB device if necessary.
+Updated MainActivity.java Code (With Permission Request)
+
+Key Steps in the Code:
+Initialize UsbManager:
+
+UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+This gets the USB service from the system to interact with USB devices.
+Check for connected USB devices:
+
+usbManager.getDeviceList().values() will return a list of currently connected USB devices.
+Request USB permission:
+
+If a device is found, we use usbManager.requestPermission(device, permissionIntent) to request permission to communicate with the device.
+The PendingIntent is triggered when permission is granted or denied.
+BroadcastReceiver:
+
+The receiver listens for permission results. If the permission is granted, you can proceed to interact with the device; if denied, you can handle it accordingly (e.g., display a message).
+Unregister the BroadcastReceiver:
+
+To prevent memory leaks, always unregister the receiver when it's no longer needed.
+
+
+📌 Conclusion
+By following these steps, you can:
+
+Request permission for USB devices.
+Handle the response using a BroadcastReceiver.
+Interact with the device after permission is granted.
+Now, your app can detect USB devices, request permission, and proceed with interacting with the device, such as reading sensor data from it.
+
+Would you like to proceed to the next step, which is reading data from the USB device?
+
+
+
+
+
+
+
