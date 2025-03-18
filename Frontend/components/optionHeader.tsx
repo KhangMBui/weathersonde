@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   mainContainer: {},
   topBar: {
     height: 100,
-    backgroundColor: "#EAEAEA",
+    backgroundColor: "#A20025",
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -56,10 +56,10 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    color: "#888",
+    color: "white",
   },
   activeTabText: {
-    color: "#000",
+    color: "white",
     fontWeight: "bold",
   },
   indicator: {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "170%",
     height: 3,
-    backgroundColor: "#007AFF", // Blue indicator
+    backgroundColor: "black", // Blue indicator
     borderRadius: 2,
   },
 });
