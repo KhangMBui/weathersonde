@@ -1,0 +1,7 @@
+{
+  "message": "Hello from FastAPI!",
+  "WS_Node": "Test Node",
+  "WS_Data": {
+    "Weather": "Sunny"
+  }
+}

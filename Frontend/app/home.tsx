@@ -6,6 +6,8 @@ import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location"; // Importing expo-location for getting current location
 import { Stack } from "expo-router";
 
+import axios from "axios";
+
 export default function HomeScreen() {
   const [location, setLocation] =
     useState<Location.LocationObjectCoords | null>(null);
@@ -36,7 +38,6 @@ export default function HomeScreen() {
   //     </View>
   //   );
   // }
-
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />

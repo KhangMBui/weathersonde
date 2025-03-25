@@ -1,13 +1,36 @@
 import Footer from "@/components/footer";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { Stack } from "expo-router";
 import OptionHeader from "@/components/optionHeader";
 
+import axios from "axios";
+import { useEffect, useState } from "react";
+
 export default function Analytics() {
+  // For testing purpose
+  const [message, setMessage] = useState("Loading...");
+
+  useEffect(() => {
+    axios
+      .get("http://10.0.1.41:8000/test")
+      .then((response) => {
+        console.log(response.data);
+        setMessage(response.data.message);
+      })
+      .catch((error) => {
+        setMessage("Failed to fetch data");
+        console.error("Error: ", error);
+      });
+  });
+
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
       <OptionHeader />
+
+      {/* Testing Purpose: */}
+      <Text>{message}</Text>
+
       <Footer />
     </View>
   );
