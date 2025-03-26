@@ -2,7 +2,12 @@ import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-export default function Footer() {
+interface FooterProps {
+  onHeatMapPress: () => void;
+}
+
+export default function Footer({ onHeatMapPress }: FooterProps) {
+  console.log("Footer received onHeatMapPress:", onHeatMapPress);
   return (
     <View style={styles.footerContainer}>
       <TouchableOpacity
@@ -21,7 +26,9 @@ export default function Footer() {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconContainer}
-        onPress={() => router.push("/settings")}
+        onPress={() => {
+          onHeatMapPress();
+        }}
       >
         <Ionicons name="map-outline" size={28} color="white" />
         <Text style={styles.iconText}>Heat Map</Text>
