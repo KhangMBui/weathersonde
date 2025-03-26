@@ -2,13 +2,14 @@ import Footer from "@/components/footer";
 import { View, StyleSheet, Text } from "react-native";
 import { Stack } from "expo-router";
 import OptionHeader from "@/components/optionHeader";
-
+import SensorModal from "@/components/SensorModal";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 export default function Analytics() {
   // For testing purpose
   const [message, setMessage] = useState("Loading...");
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     axios
@@ -31,7 +32,11 @@ export default function Analytics() {
       {/* Testing Purpose: */}
       <Text>{message}</Text>
 
-      <Footer />
+      <SensorModal
+        isVisible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+      />
+      <Footer onHeatMapPress={() => setModalVisible(true)} />
     </View>
   );
 }

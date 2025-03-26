@@ -2,16 +2,17 @@ import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { useEffect, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import SensorModal from "@/components/SensorModal";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location"; // Importing expo-location for getting current location
 import { Stack } from "expo-router";
-
 import axios from "axios";
 
 export default function HomeScreen() {
   const [location, setLocation] =
     useState<Location.LocationObjectCoords | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const getLocation = async () => {
@@ -54,7 +55,11 @@ export default function HomeScreen() {
         showsUserLocation={true} // Show the user's location on the map
         followsUserLocation={true} // Follow the user's location on the map
       />
-      <Footer />
+      <SensorModal
+        isVisible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+      />
+      <Footer onHeatMapPress={() => setModalVisible(true)} />
     </View>
   );
 }
