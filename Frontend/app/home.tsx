@@ -14,6 +14,8 @@ export default function HomeScreen() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
 
+  const [selectedButton, setSelectedButton] = useState<string | null>(null);
+
   useEffect(() => {
     const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -59,7 +61,11 @@ export default function HomeScreen() {
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <Footer onHeatMapPress={() => setModalVisible(true)} />
+      <Footer
+        selectedButton={selectedButton}
+        setSelectedButton={setSelectedButton}
+        onHeatMapPress={() => setModalVisible(true)}
+      />
     </View>
   );
 }
