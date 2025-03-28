@@ -10,6 +10,7 @@ export default function Analytics() {
   // For testing purpose
   const [message, setMessage] = useState("Loading...");
   const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedButton, setSelectedButton] = useState<string | null>(null);
 
   useEffect(() => {
     axios
@@ -36,7 +37,11 @@ export default function Analytics() {
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <Footer onHeatMapPress={() => setModalVisible(true)} />
+      <Footer
+        selectedButton={selectedButton}
+        setSelectedButton={setSelectedButton}
+        onHeatMapPress={() => setModalVisible(true)}
+      />
     </View>
   );
 }
