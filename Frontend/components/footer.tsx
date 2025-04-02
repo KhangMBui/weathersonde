@@ -58,7 +58,7 @@ export default function Footer({
           styles.iconContainer,
           selectedButton === "weather" && styles.selectedButton, // Highlight selected button
         ]}
-        onPress={() => handlePress("weather", () => router.push("/settings"))}
+        onPress={() => handlePress("weather", () => router.push("/weather"))}
       >
         <Ionicons name="partly-sunny-outline" size={28} color="white" />
         <Text style={styles.iconText}>Weather</Text>

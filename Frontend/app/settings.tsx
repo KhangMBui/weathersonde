@@ -202,7 +202,8 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "blue",
+    // color: "blue",
+    color: "#8B0000",
     marginTop: 20,
   },
   row: {
