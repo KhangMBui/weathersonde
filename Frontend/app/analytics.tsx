@@ -14,7 +14,7 @@ export default function Analytics() {
 
   useEffect(() => {
     axios
-      .get("http://10.0.7.60:8000/test")
+      .get("http://192.168.56.1:8000/test")
       .then((response) => {
         console.log(response.data);
         setMessage(response.data.message);
