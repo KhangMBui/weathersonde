@@ -22,8 +22,8 @@ const SensorModal: React.FC<SensorModalProps> = ({ isVisible, onClose }) => {
         <View style={styles.swipeIndicator} />
         <View style={styles.buttonsContainer}>
           <SensorButton icon="water" label="Humidity" />
-          <SensorButton icon="gauge" label="Pressure" />
-          <SensorButton icon="weather-windy" label="Gas" />
+          {/* <SensorButton icon="gauge" label="Pressure" />
+          <SensorButton icon="weather-windy" label="Gas" /> */}
           <SensorButton icon="thermometer" label="Temperature" />
         </View>
       </View>

@@ -91,7 +91,8 @@ export default function Settings() {
             dropDownContainerStyle={styles.dropdownContainer}
           />
         </View>
-        <Text style={styles.sectionHeader}>Data Collection</Text>
+        {/* Data Collection */}
+        {/* <Text style={styles.sectionHeader}>Data Collection</Text>
         <View style={styles.row}>
           <Text style={styles.label}>Dynamic Speed</Text>
           <Switch
@@ -99,9 +100,9 @@ export default function Settings() {
             value={dynamicSpeed}
             onValueChange={setDynamicSpeed}
           />
-        </View>
+        </View> */}
         {/* Cruise Control */}
-        <Text style={styles.label}>Cruise Control</Text>
+        {/* <Text style={styles.label}>Cruise Control</Text>
         <Text style={styles.subLabel}>Speed</Text>
         <View style={styles.row}>
           <TextInput
@@ -130,21 +131,21 @@ export default function Settings() {
             style={styles.dropdownSmall}
             dropDownContainerStyle={styles.dropdownSmallContainer}
           />
-        </View>
+        </View> */}
         {/* Data Points */}
-        <Text style={styles.label}>Data points per 10 meter/feet</Text>
+        {/* <Text style={styles.label}>Data points per 10 meter/feet</Text>
         <Text style={styles.subLabel}>Data Points</Text>
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           value={dataPoints}
           onChangeText={setDataPoints}
-        />
+        /> */}
         {/* Data Interval */}
-        <Text style={styles.label}>Data Interval</Text>
-        <Text style={styles.input}>Infinity s</Text>
+        {/* <Text style={styles.label}>Data Interval</Text>
+        <Text style={styles.input}>Infinity s</Text> */}
         {/* Devices Section */}
-        <Text style={styles.sectionHeader}>Devices</Text>
+        {/* <Text style={styles.sectionHeader}>Devices</Text> */}
       </View>
       <Footer
         selectedButton={selectedButton}

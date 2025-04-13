@@ -1,47 +1,37 @@
-import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
-import { useState } from "react";
+// OptionHeader.tsx (example)
+import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import React from "react";
 
-export default function OptionHeader() {
-  const [activeTab, setActiveTab] = useState("Historical");
+interface Props {
+  selectedTab: string;
+  onTabChange: (tab: string) => void;
+}
 
+export default function OptionHeader({ selectedTab, onTabChange }: Props) {
   return (
-    <View style={styles.topBar}>
-      <TouchableOpacity
-        onPress={() => setActiveTab("Real-time")}
-        style={styles.tab}
-      >
+    <View style={styles.tabContainer}>
+      <TouchableOpacity onPress={() => onTabChange("Real-Time")}>
         <Text
-          style={[
-            styles.tabText,
-            activeTab === "Real-time" && styles.activeTabText,
-          ]}
+          style={selectedTab === "Real-Time" ? styles.activeTab : styles.tab}
         >
-          Real-time
+          Real Time
         </Text>
-        {activeTab === "Real-time" && <View style={styles.indicator} />}
+        {selectedTab === "Real-Time" && <View style={styles.indicator} />}
       </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => setActiveTab("Historical")}
-        style={styles.tab}
-      >
+      <TouchableOpacity onPress={() => onTabChange("Historical")}>
         <Text
-          style={[
-            styles.tabText,
-            activeTab === "Historical" && styles.activeTabText,
-          ]}
+          style={selectedTab === "Historical" ? styles.activeTab : styles.tab}
         >
           Historical
         </Text>
-        {activeTab === "Historical" && <View style={styles.indicator} />}
+        {selectedTab === "Historical" && <View style={styles.indicator} />}
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {},
-  topBar: {
+  tabContainer: {
     height: 100,
     backgroundColor: "#A20025",
     display: "flex",
@@ -51,23 +41,23 @@ const styles = StyleSheet.create({
     borderBottomColor: "#CCC",
   },
   tab: {
+    fontSize: 16,
     alignItems: "center",
     paddingTop: 55,
-  },
-  tabText: {
-    fontSize: 16,
     color: "white",
   },
-  activeTabText: {
+  activeTab: {
+    fontSize: 16,
+    paddingTop: 55,
     color: "white",
     fontWeight: "bold",
   },
   indicator: {
     position: "absolute",
     bottom: 0,
-    width: "170%",
+    width: "100%",
     height: 3,
-    backgroundColor: "black", // Blue indicator
+    backgroundColor: "white",
     borderRadius: 2,
   },
 });
