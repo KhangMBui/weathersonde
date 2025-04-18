@@ -1,5 +1,5 @@
 import Footer from "@/components/footer";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, ScrollView } from "react-native";
 import { Stack } from "expo-router";
 import OptionHeader from "@/components/optionHeader";
 import SensorModal from "@/components/SensorModal";
@@ -25,9 +25,37 @@ export default function Analytics() {
     weatherRH: "",
   });
 
+  // For constant data fetching on the historical page
+  const [historicalData, setHistoricalData] = useState<any[]>([]);
+
   useEffect(() => {
-    getDroneInfo();
-  });
+    // Fetch data at regular intervals
+    const interval = setInterval(() => {
+      getDroneInfo();
+    }, 2000); // Fetch every 2 seconds
+
+    return () => clearInterval(interval); // Cleanup on component unmount
+  }, []);
+
+  useEffect(() => {
+    // Append new historical data whenever generalInfo changes
+    if (generalInfo.date && generalInfo.time) {
+      const newEntry = {
+        date: generalInfo.date,
+        time: generalInfo.time,
+        altitude: generalInfo.altitude,
+        internalTemp: generalInfo.internalTemp,
+        internalRH: generalInfo.internalRH,
+        internalPres: generalInfo.internalPres,
+        airTemp: generalInfo.airTemp,
+        weatherRH: generalInfo.weatherRH,
+      };
+      setHistoricalData((prevData) => {
+        const updatedData = [newEntry, ...prevData];
+        return updatedData.slice(0, 20); // Keep only the latest 50 entries
+      });
+    }
+  }, [generalInfo]);
 
   const getDroneInfo = async () => {
     try {
@@ -43,36 +71,30 @@ export default function Analytics() {
         Internal_Pres: internalPres,
         Weather: { Air_Temperature: airTemp, RH: weatherRH },
       } = response.data;
-      console.log("Drone location fetched: ", latitude, longitude);
-      setGeneralInfo({
+      // console.log("Drone location fetched: ", latitude, longitude);
+      const snapshot = {
         date,
         time,
+        latitude,
+        longitude,
         altitude,
         internalTemp,
         internalRH,
         internalPres,
         airTemp,
         weatherRH,
-      });
+      };
+
+      // Update live data
+      setGeneralInfo(snapshot);
+
+      // Add snapshot to the top of the history
+      setHistoricalData((prev) => [snapshot, ...prev]);
     } catch (error) {
       setMessage("Failed to fetch data");
       console.error("Error fetching drone location:", error);
     }
   };
-
-  // const renderDataRow = (
-  //   icon: React.ReactNode,
-  //   label: string,
-  //   value: string
-  // ) => (
-  //   <View style={styles.dataRow}>
-  //     <View style={styles.iconLabel}>
-  //       {icon}
-  //       <Text style={styles.label}>{label}</Text>
-  //     </View>
-  //     <Text style={styles.value}>{value}</Text>
-  //   </View>
-  // );
 
   return (
     <View style={styles.mainContainer}>
@@ -126,12 +148,38 @@ export default function Analytics() {
           </View>
         </View>
       ) : (
-        <View>
-          <Text style={{ fontSize: 18, margin: 10 }}>Historical Data</Text>
-          {/* Replace with actual historical content */}
-          <Text>This will be historical analytics.</Text>
-          <Text>{message}</Text>
-        </View>
+        // <View style={styles.infoContainer}>
+        //   <Text style={styles.infoTitle}>Historical Data</Text>
+        //   {historicalData.map((entry, index) => (
+        //     <View key={index} style={styles.infoCard}>
+        //       <Text style={styles.value}>{entry}</Text>
+        //     </View>
+        //   ))}
+        // </View>
+        <ScrollView
+          style={{ padding: 10 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        >
+          {historicalData.map((item, index) => (
+            <View key={index} style={styles.infoCard}>
+              <Text style={styles.value}>
+                📅 Date: {item.date} 🕒 Time: {item.time}
+                {"\n"}
+                ⛰️ Altitude: {item.altitude}
+                {"\n"}
+                🌡️ Internal Temp: {item.internalTemp}
+                {"\n"}
+                💧 Internal RH: {item.internalRH}
+                {"\n"}
+                📊 Internal Pressure: {item.internalPres}
+                {"\n"}
+                🌤️ Air Temp: {item.airTemp}
+                {"\n"}
+                💦 Weather RH: {item.weatherRH}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
       )}
 
       <SensorModal

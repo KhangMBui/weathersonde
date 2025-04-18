@@ -47,7 +47,7 @@ export default function HomeScreen() {
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://192.168.56.1:8000/ws_data");
+      const response = await axios.get("http://100.85.183.33:8000/ws_data");
       const {
         Date: date,
         Time: time,
@@ -59,7 +59,7 @@ export default function HomeScreen() {
         Internal_Pres: internalPres,
         Weather: { Air_Temperature: airTemp, RH: weatherRH },
       } = response.data;
-      console.log("Drone location fetched: ", latitude, longitude);
+      // console.log("Drone location fetched: ", latitude, longitude);
       setDroneLocation({ latitude, longitude });
       setGeneralInfo({
         date,
