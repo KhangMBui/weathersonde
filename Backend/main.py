@@ -7,9 +7,9 @@ import uvicorn
 import time
 from threading import Lock
 from typing import Dict, List, Optional
-
+ 
 app = FastAPI()
-
+ 
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
@@ -18,10 +18,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+ 
 # Thread-safe data access
 data_lock = Lock()
-
+ 
 # Initialize data structure
 latest_data = {
     "WS_Node": {
@@ -34,8 +34,8 @@ latest_data = {
     "WS_Data": {
         "Date": "",
         "Time": "",
-        "latitude": 0.0,
-        "longitude": 0.0,
+        "latitude": 46.7298,
+        "longitude": -117.181834,
         "altitude": "",
         "Internal_Temp": "",
         "Internal_RH": "",
@@ -46,12 +46,13 @@ latest_data = {
         }
     }
 }
-
+ 
 # Historical tracking
 historical_records: List[Dict] = []
+grouped_records: List[Dict] = [] #new one
 highest_record: Optional[Dict] = None
 lowest_record: Optional[Dict] = None
-
+ 
 def clean_sensor_value(val):
     """Convert string values to appropriate types when possible"""
     if isinstance(val, str):
@@ -66,29 +67,29 @@ def clean_sensor_value(val):
         elif 'V' in val:
             return float(val.replace('V', ''))
     return val
-
+ 
 def read_usb_data():
     global latest_data, historical_records, highest_record, lowest_record
     try:
         ser = serial.Serial('COM8', baudrate=57600, timeout=1)
         ser.flushInput()
-        
+       
         while True:
             if ser.in_waiting > 0:
                 try:
                     raw_line = ser.readline()
                     line = raw_line.decode('utf-8').strip()
                     print(f"Raw sensor data: {line}")
-                    
+                   
                     parsed = json.loads(line)
-                    
+                   
                     with data_lock:
                         # Update latest data
                         if "WS_Node" in parsed:
                             for key, value in parsed["WS_Node"].items():
                                 if key in latest_data["WS_Node"]:
                                     latest_data["WS_Node"][key] = clean_sensor_value(value)
-                        
+                       
                         if "WS_Data" in parsed:
                             for key, value in parsed["WS_Data"].items():
                                 if key in latest_data["WS_Data"]:
@@ -98,65 +99,91 @@ def read_usb_data():
                                                 latest_data["WS_Data"]["Weather"][weather_key] = clean_sensor_value(weather_value)
                                     else:
                                         latest_data["WS_Data"][key] = clean_sensor_value(value)
-                            
+                           
                             # Create a new record for external temperature only
                             current_temp = latest_data["WS_Data"]["Weather"]["Air_Temperature"]
                             current_alt = latest_data["WS_Data"]["altitude"]
                             current_time = f"{latest_data['WS_Data']['Date']} {latest_data['WS_Data']['Time']}"
-                            
+                           
                             if isinstance(current_temp, (int, float)) and isinstance(current_alt, (int, float)):
                                 record = {
                                     "timestamp": current_time,
                                     "temperature": current_temp,
                                     "altitude": current_alt
                                 }
-                                
+                               
                                 # Add to historical records
                                 historical_records.append(record)
-                                
+                               
                                 # Update highest/lowest records
                                 if highest_record is None or current_temp > highest_record["temperature"]:
                                     highest_record = record
                                 if lowest_record is None or current_temp < lowest_record["temperature"]:
                                     lowest_record = record
-                    
+                   
                 except json.JSONDecodeError:
                     print("Invalid JSON received")
                 except Exception as e:
                     print(f"Error processing data: {str(e)}")
-            
+           
             time.sleep(0.1)
-            
+           
     except serial.SerialException as e:
         print(f"Serial error: {str(e)}")
     except Exception as e:
         print(f"Fatal error in serial thread: {str(e)}")
-
+ 
+def process_records_by_height():
+    """
+    Groups historical records by altitude and computes the average temperature for each altitude.
+    """
+    global grouped_records
+    with data_lock:
+        height_map = {}
+       
+        # Group records by altitude
+        for record in historical_records:
+            altitude = record["altitude"]
+            if altitude not in height_map:
+                height_map[altitude] = {"altitude": altitude, "temperatures": [], "count": 0}
+            height_map[altitude]["temperatures"].append(record["temperature"])
+            height_map[altitude]["count"] += 1
+       
+        # Compute averages and create a grouped list
+        grouped_records = [
+            {
+                "altitude": altitude,
+                "average_temperature": sum(details["temperatures"]) / details["count"],
+                "count": details["count"]
+            }
+            for altitude, details in sorted(height_map.items())
+        ]
+ 
 # Start USB reading thread
 usb_thread = threading.Thread(target=read_usb_data, daemon=True)
 usb_thread.start()
-
+ 
 # API endpoints
 @app.get('/')
 def root():
     with data_lock:
         return latest_data
-
+ 
 @app.get("/ws_node")
 def get_ws_node():
     with data_lock:
         return latest_data["WS_Node"]
-
+ 
 @app.get("/ws_data")
 def get_ws_data():
     with data_lock:
         return latest_data["WS_Data"]
-
+ 
 @app.get("/ws_data/time")
 def get_time():
     with data_lock:
         return latest_data["WS_Data"]["Time"]
-
+ 
 @app.get("/ws_data/geojson")
 def get_geojson():
     with data_lock:
@@ -167,7 +194,7 @@ def get_geojson():
                 latest_data["WS_Data"]["latitude"]
             ]
         }
-
+ 
 @app.get("/ws_data/location")
 def get_location():
     with data_lock:
@@ -175,12 +202,12 @@ def get_location():
             "latitude": latest_data["WS_Data"]["latitude"],
             "longitude": latest_data["WS_Data"]["longitude"]
         }
-
+ 
 @app.get("/ws_data/height")
 def get_height():
     with data_lock:
         return latest_data["WS_Data"]["altitude"]
-
+ 
 @app.get("/ws_data/internal")
 def get_internal():
     with data_lock:
@@ -189,17 +216,17 @@ def get_internal():
             "Humidity": latest_data["WS_Data"]["Internal_RH"],
             "Pressure": latest_data["WS_Data"]["Internal_Pres"]
         }
-
+ 
 @app.get("/ws_data/temperature")
 def get_temperature():
     with data_lock:
         return latest_data["WS_Data"]["Weather"]["Air_Temperature"]
-
+ 
 @app.get("/ws_data/humidity")
 def get_humidity():
     with data_lock:
         return latest_data["WS_Data"]["Weather"]["RH"]
-
+ 
 @app.get("/inversion", response_model=Dict)
 def get_inversion():
     """
@@ -241,8 +268,35 @@ def get_inversion():
                 "inversion_height":inversion_height,
                 "inversion_rate":inversion_rate
             }
-
+ 
 # Include all your existing endpoints here...
-
+ 
+# API endpoints
+@app.get("/records/grouped_by_height")
+def get_grouped_records():
+    """
+    Endpoint to retrieve grouped records by altitude with average temperatures.
+    """
+    with data_lock:
+        if not grouped_records:
+            process_records_by_height()  # Process records if not already grouped
+        return {"grouped_records": grouped_records}
+ 
+@app.get("/records/height_and_temperature")
+def get_height_and_temperature():
+    """
+    Endpoint to retrieve only the altitude and average temperature from grouped records.
+    """
+    with data_lock:
+        if not grouped_records:
+            process_records_by_height()  # Process records if not already grouped
+        return [
+            {
+                "altitude": record["altitude"],
+                "average_temperature": record["average_temperature"]
+            }
+            for record in grouped_records
+        ]
+ 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
