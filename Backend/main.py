@@ -49,6 +49,7 @@ latest_data = {
 
 # Historical tracking
 historical_records: List[Dict] = []
+grouped_records: List[Dict] = [] #new one
 highest_record: Optional[Dict] = None
 lowest_record: Optional[Dict] = None
 
@@ -131,6 +132,32 @@ def read_usb_data():
         print(f"Serial error: {str(e)}")
     except Exception as e:
         print(f"Fatal error in serial thread: {str(e)}")
+
+def process_records_by_height():
+    """
+    Groups historical records by altitude and computes the average temperature for each altitude.
+    """
+    global grouped_records
+    with data_lock:
+        height_map = {}
+        
+        # Group records by altitude
+        for record in historical_records:
+            altitude = record["altitude"]
+            if altitude not in height_map:
+                height_map[altitude] = {"altitude": altitude, "temperatures": [], "count": 0}
+            height_map[altitude]["temperatures"].append(record["temperature"])
+            height_map[altitude]["count"] += 1
+        
+        # Compute averages and create a grouped list
+        grouped_records = [
+            {
+                "altitude": altitude,
+                "average_temperature": sum(details["temperatures"]) / details["count"],
+                "count": details["count"]
+            }
+            for altitude, details in sorted(height_map.items())
+        ]
 
 # Start USB reading thread
 usb_thread = threading.Thread(target=read_usb_data, daemon=True)
@@ -243,6 +270,33 @@ def get_inversion():
             }
 
 # Include all your existing endpoints here...
+
+# API endpoints
+@app.get("/records/grouped_by_height")
+def get_grouped_records():
+    """
+    Endpoint to retrieve grouped records by altitude with average temperatures.
+    """
+    with data_lock:
+        if not grouped_records:
+            process_records_by_height()  # Process records if not already grouped
+        return {"grouped_records": grouped_records}
+
+@app.get("/records/height_and_temperature")
+def get_height_and_temperature():
+    """
+    Endpoint to retrieve only the altitude and average temperature from grouped records.
+    """
+    with data_lock:
+        if not grouped_records:
+            process_records_by_height()  # Process records if not already grouped
+        return [
+            {
+                "altitude": record["altitude"],
+                "average_temperature": record["average_temperature"]
+            }
+            for record in grouped_records
+        ]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
