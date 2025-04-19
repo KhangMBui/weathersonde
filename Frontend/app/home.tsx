@@ -47,7 +47,7 @@ export default function HomeScreen() {
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://100.85.183.33:8000/ws_data");
+      const response = await axios.get("http://172.29.208.1:8000/ws_data");
       const {
         Date: date,
         Time: time,
@@ -136,9 +136,9 @@ export default function HomeScreen() {
 
       <View style={styles.generalInfo}>
         <Text style={styles.infoText}>
-          Lat: {droneLocation.latitude.toFixed(4)}, Long:{" "}
-          {droneLocation.longitude.toFixed(4)}, Temp:{" "}
-          {parseFloat(generalInfo.airTemp).toFixed(2)}°C, Humidity:{" "}
+          Date: {generalInfo.date}, Time: {generalInfo.time}
+          {"\n"}
+          Temp: {parseFloat(generalInfo.airTemp).toFixed(2)}°C, Humidity:{" "}
           {parseFloat(generalInfo.weatherRH).toFixed(2)}%, Alt:{" "}
           {parseFloat(generalInfo.altitude).toFixed(1)}m
         </Text>

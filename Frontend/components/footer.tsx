@@ -28,30 +28,29 @@ export default function Footer({
         ]}
         onPress={() => handlePress("data", () => router.push("/"))}
       >
-        <Ionicons name="analytics-outline" size={28} color="white" />
-        <Text style={styles.iconText}>Data</Text>
+        <Ionicons name="map-outline" size={28} color="white" />
+        <Text style={styles.iconText}>Map</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[
           styles.iconContainer,
           selectedButton === "analytics" && styles.selectedButton, // Highlight selected button
         ]}
-        onPress={() =>
-          handlePress("analytics", () => router.push("/analytics"))
-        }
+        onPress={() => handlePress("analytics", () => router.push("/data"))}
       >
         <Ionicons name="bar-chart-outline" size={28} color="white" />
-        <Text style={styles.iconText}>Analytics</Text>
+        <Text style={styles.iconText}>Data</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[
           styles.iconContainer,
           selectedButton === "heatmap" && styles.selectedButton, // Highlight selected button
         ]}
-        onPress={() => handlePress("heatmap", onHeatMapPress)}
+        onPress={() => handlePress("heatmap", () => router.push("/analytics"))}
+        // onPress={() => handlePress("heatmap", onHeatMapPress)}
       >
-        <Ionicons name="map-outline" size={28} color="white" />
-        <Text style={styles.iconText}>Heat Map</Text>
+        <Ionicons name="analytics-outline" size={28} color="white" />
+        <Text style={styles.iconText}>Analytics</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[
