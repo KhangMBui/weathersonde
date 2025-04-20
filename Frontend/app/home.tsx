@@ -2,7 +2,7 @@ import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import SensorModal from "@/components/SensorModal";
+// import SensorModal from "@/components/SensorModal";
 import MapView, {
   PROVIDER_GOOGLE,
   Marker,
@@ -14,9 +14,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
   const mapRef = useRef<MapView | null>(null); // Map reference
-  const [errorMsg, setErrorMsg] = useState("");
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
 
   const [droneLocation, setDroneLocation] = useState({
     latitude: 0,
@@ -144,15 +141,11 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      <SensorModal
+      {/* <SensorModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-      />
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      /> */}
+      <Footer />
     </View>
   );
 }

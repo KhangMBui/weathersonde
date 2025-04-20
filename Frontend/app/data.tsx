@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import OptionHeader from "@/components/optionHeader";
-import SensorModal from "@/components/SensorModal";
+// import SensorModal from "@/components/SensorModal";
 import axios from "axios";
 import { useEffect, useState } from "react";
 // import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -18,8 +18,7 @@ export default function Data() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null); // Track expanded item by unique identifier
   const [selectedTab, setSelectedTab] = useState("Real-Time");
   const [message, setMessage] = useState("Loading...");
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
+  // const [isModalVisible, setModalVisible] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState({
     date: "",
@@ -263,16 +262,12 @@ export default function Data() {
           })}
         </ScrollView>
       )}
-
+      {/* 
       <SensorModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-      />
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      /> */}
+      <Footer />
     </View>
   );
 }

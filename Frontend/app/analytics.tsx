@@ -1,6 +1,6 @@
 import Footer from "@/components/footer";
 import { View, StyleSheet } from "react-native";
-import SensorModal from "@/components/SensorModal";
+// import SensorModal from "@/components/SensorModal";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Header from "@/components/header";
@@ -9,8 +9,7 @@ import { Stack } from "expo-router";
 
 export default function Analytics() {
   const [message, setMessage] = useState("Loading...");
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
+  // const [isModalVisible, setModalVisible] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState({
     date: "",
@@ -138,15 +137,11 @@ export default function Analytics() {
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
-      <SensorModal
+      {/* <SensorModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-      />
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      /> */}
+      <Footer />
     </View>
   );
 }

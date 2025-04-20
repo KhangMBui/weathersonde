@@ -7,7 +7,7 @@ import SensorModal from "@/components/SensorModal";
 import { TouchableOpacity } from "react-native";
 
 export default function Settings() {
-  const [isModalVisible, setModalVisible] = useState(false);
+  // const [isModalVisible, setModalVisible] = useState(false);
   const [dynamicSpeed, setDynamicSpeed] = useState(false);
   const [temperatureUnit, setTemperatureUnit] = useState("°F");
   const [distanceUnit, setDistanceUnit] = useState("ft");
@@ -32,16 +32,14 @@ export default function Settings() {
     { label: "mph", value: "mph" },
   ];
 
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
-
   return (
     <>
       <View style={styles.mainContainer}>
         <Stack.Screen options={{ headerShown: false }} />
-        <SensorModal
+        {/* <SensorModal
           isVisible={isModalVisible}
           onClose={() => setModalVisible(false)}
-        />
+        /> */}
         {/* Temperature Unit */}
         <Text style={styles.sectionHeader}>Units</Text>
         <Text style={styles.label}>Temperature Unit</Text>
@@ -147,11 +145,7 @@ export default function Settings() {
         {/* Devices Section */}
         {/* <Text style={styles.sectionHeader}>Devices</Text> */}
       </View>
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      <Footer />
     </>
   );
 }

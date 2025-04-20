@@ -7,8 +7,6 @@ import axios from "axios";
 import { fetchWeatherApi } from "openmeteo";
 
 export default function Weather() {
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
-  const [isModalVisible, setModalVisible] = useState(false);
   const [droneLocation, setDroneLocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -146,11 +144,7 @@ export default function Weather() {
       ) : (
         <Text>No weather data available.</Text>
       )}
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      <Footer />
     </View>
   );
 }

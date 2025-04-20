@@ -2,50 +2,30 @@ import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-interface FooterProps {
-  selectedButton: string | null;
-  setSelectedButton: (button: string) => void;
-  onHeatMapPress: () => void;
-}
-
-export default function Footer({
-  selectedButton,
-  setSelectedButton,
-  onHeatMapPress,
-}: FooterProps) {
+export default function Footer() {
   // Helper function to handle button press and highlight the selected one
   const handlePress = (button: string, onPress: () => void) => {
-    setSelectedButton(button); // Set the selected button
     onPress(); // Call the respective press function
   };
 
   return (
     <View style={styles.footerContainer}>
       <TouchableOpacity
-        style={[
-          styles.iconContainer,
-          selectedButton === "data" && styles.selectedButton, // Highlight selected button
-        ]}
+        style={[styles.iconContainer]}
         onPress={() => handlePress("data", () => router.push("/"))}
       >
         <Ionicons name="map-outline" size={28} color="white" />
         <Text style={styles.iconText}>Map</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[
-          styles.iconContainer,
-          selectedButton === "analytics" && styles.selectedButton, // Highlight selected button
-        ]}
+        style={[styles.iconContainer]}
         onPress={() => handlePress("analytics", () => router.push("/data"))}
       >
         <Ionicons name="bar-chart-outline" size={28} color="white" />
         <Text style={styles.iconText}>Data</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[
-          styles.iconContainer,
-          selectedButton === "heatmap" && styles.selectedButton, // Highlight selected button
-        ]}
+        style={[styles.iconContainer]}
         onPress={() => handlePress("heatmap", () => router.push("/analytics"))}
         // onPress={() => handlePress("heatmap", onHeatMapPress)}
       >
@@ -53,20 +33,14 @@ export default function Footer({
         <Text style={styles.iconText}>Analytics</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[
-          styles.iconContainer,
-          selectedButton === "weather" && styles.selectedButton, // Highlight selected button
-        ]}
+        style={[styles.iconContainer]}
         onPress={() => handlePress("weather", () => router.push("/weather"))}
       >
         <Ionicons name="partly-sunny-outline" size={28} color="white" />
         <Text style={styles.iconText}>Weather</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[
-          styles.iconContainer,
-          selectedButton === "settings" && styles.selectedButton, // Highlight selected button
-        ]}
+        style={[styles.iconContainer]}
         onPress={() => handlePress("settings", () => router.push("/settings"))}
       >
         <Ionicons name="settings-sharp" size={28} color="white" />

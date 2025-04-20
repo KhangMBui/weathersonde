@@ -24,28 +24,29 @@ data_lock = Lock()
  
 # Initialize data structure
 latest_data = {
-    "WS_Node": {
-        "WS_ID": "",
-        "SNR": "",
-        "Bat_Volt": "",
-        "Bat_SOC": "",
-        "DC_CHG": ""
-    },
-    "WS_Data": {
-        "Date": "",
-        "Time": "",
-        "latitude": 46.7298,
-        "longitude": -117.181834,
-        "altitude": "",
-        "Internal_Temp": "",
-        "Internal_RH": "",
-        "Internal_Pres": "",
-        "Weather": {
-            "Air_Temperature": "",
-            "RH": ""
-        }
+  "WS_Node": {
+    "WS_ID": "ws0001",
+    "SNR": "100dbm",
+    "Bat_Volt": "4.1V",
+    "Bat_SOC": "89%",
+    "DC_CHG": "CHG / NA"
+  },
+  "WS_Data": {
+    "Date": "10/31/2024",
+    "Time": "14:40:49",
+    "latitude": 46.911334,
+    "longitude": -119.742122,
+    "altitude": "15.3 m",
+    "Internal_Temp": "25 °C",
+    "Internal_RH": "34%",
+    "Internal_Pres": "7 kPa",
+    "Weather": {
+      "Air_Temperature": "25 °C",
+      "RH": "45%"
     }
+  }
 }
+
  
 # Historical tracking
 historical_records: List[Dict] = []
@@ -268,10 +269,7 @@ def get_inversion():
                 "inversion_height":inversion_height,
                 "inversion_rate":inversion_rate
             }
- 
-# Include all your existing endpoints here...
- 
-# API endpoints
+
 @app.get("/records/grouped_by_height")
 def get_grouped_records():
     """
@@ -297,6 +295,36 @@ def get_height_and_temperature():
             }
             for record in grouped_records
         ]
+ 
+
+
+# Test data changing:
+import random
+
+def simulate_data_updates():
+    """Simulate constant updates to the latest_data structure."""
+    global latest_data
+    while True:
+        with data_lock:
+            # Update WS_Data with random or incremented values
+            latest_data["WS_Data"]["Date"] = time.strftime("%m/%d/%Y")
+            latest_data["WS_Data"]["Time"] = time.strftime("%H:%M:%S")
+            latest_data["WS_Data"]["latitude"] += random.uniform(-0.001, 0.001)
+            latest_data["WS_Data"]["longitude"] += random.uniform(-0.001, 0.001)
+            latest_data["WS_Data"]["altitude"] = f"{random.uniform(10, 20):.1f} m"
+            latest_data["WS_Data"]["Internal_Temp"] = f"{random.uniform(20, 30):.1f} °C"
+            latest_data["WS_Data"]["Internal_RH"] = f"{random.uniform(30, 50):.1f}%"
+            latest_data["WS_Data"]["Internal_Pres"] = f"{random.uniform(5, 10):.1f} kPa"
+            latest_data["WS_Data"]["Weather"]["Air_Temperature"] = f"{random.uniform(20, 30):.1f} °C"
+            latest_data["WS_Data"]["Weather"]["RH"] = f"{random.uniform(40, 60):.1f}%"
+        
+        # Wait for a short interval before updating again
+        time.sleep(10)
+
+# Start the simulation in a separate thread
+simulation_thread = threading.Thread(target=simulate_data_updates, daemon=True)
+simulation_thread.start()
+
  
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
