@@ -49,12 +49,13 @@ latest_data = {
 
 # Historical tracking
 historical_records: List[Dict] = []
-grouped_records: List[Dict] = [] #new one
+grouped_records: List[Dict] = []
 highest_record: Optional[Dict] = None
 lowest_record: Optional[Dict] = None
 
+
 def clean_sensor_value(val):
-    """Convert string values to appropriate types when possible"""
+    """Convert string values to appropriate types when possible."""
     if isinstance(val, str):
         if '°C' in val:
             return float(val.replace(' °C', ''))
@@ -68,70 +69,73 @@ def clean_sensor_value(val):
             return float(val.replace('V', ''))
     return val
 
+
 def read_usb_data():
     global latest_data, historical_records, highest_record, lowest_record
     try:
-        ser = serial.Serial('COM8', baudrate=57600, timeout=1)
+        ser = serial.Serial('COM3', baudrate=57600, timeout=1)
         ser.flushInput()
-        
+
         while True:
             if ser.in_waiting > 0:
                 try:
                     raw_line = ser.readline()
                     line = raw_line.decode('utf-8').strip()
                     print(f"Raw sensor data: {line}")
-                    
+
                     parsed = json.loads(line)
-                    
+
                     with data_lock:
                         # Update latest data
                         if "WS_Node" in parsed:
                             for key, value in parsed["WS_Node"].items():
                                 if key in latest_data["WS_Node"]:
                                     latest_data["WS_Node"][key] = clean_sensor_value(value)
-                        
+
                         if "WS_Data" in parsed:
                             for key, value in parsed["WS_Data"].items():
                                 if key in latest_data["WS_Data"]:
                                     if key == "Weather":
                                         for weather_key, weather_value in value.items():
                                             if weather_key in latest_data["WS_Data"]["Weather"]:
-                                                latest_data["WS_Data"]["Weather"][weather_key] = clean_sensor_value(weather_value)
+                                                latest_data["WS_Data"]["Weather"][weather_key] = clean_sensor_value(
+                                                    weather_value)
                                     else:
                                         latest_data["WS_Data"][key] = clean_sensor_value(value)
-                            
+
                             # Create a new record for external temperature only
                             current_temp = latest_data["WS_Data"]["Weather"]["Air_Temperature"]
                             current_alt = latest_data["WS_Data"]["altitude"]
                             current_time = f"{latest_data['WS_Data']['Date']} {latest_data['WS_Data']['Time']}"
-                            
+
                             if isinstance(current_temp, (int, float)) and isinstance(current_alt, (int, float)):
                                 record = {
                                     "timestamp": current_time,
                                     "temperature": current_temp,
                                     "altitude": current_alt
                                 }
-                                
+
                                 # Add to historical records
                                 historical_records.append(record)
-                                
+
                                 # Update highest/lowest records
                                 if highest_record is None or current_temp > highest_record["temperature"]:
                                     highest_record = record
                                 if lowest_record is None or current_temp < lowest_record["temperature"]:
                                     lowest_record = record
-                    
+
                 except json.JSONDecodeError:
                     print("Invalid JSON received")
                 except Exception as e:
                     print(f"Error processing data: {str(e)}")
-            
+
             time.sleep(0.1)
-            
+
     except serial.SerialException as e:
         print(f"Serial error: {str(e)}")
     except Exception as e:
         print(f"Fatal error in serial thread: {str(e)}")
+
 
 def process_records_by_height():
     """
@@ -140,7 +144,7 @@ def process_records_by_height():
     global grouped_records
     with data_lock:
         height_map = {}
-        
+
         # Group records by altitude
         for record in historical_records:
             altitude = record["altitude"]
@@ -148,7 +152,7 @@ def process_records_by_height():
                 height_map[altitude] = {"altitude": altitude, "temperatures": [], "count": 0}
             height_map[altitude]["temperatures"].append(record["temperature"])
             height_map[altitude]["count"] += 1
-        
+
         # Compute averages and create a grouped list
         grouped_records = [
             {
@@ -158,6 +162,7 @@ def process_records_by_height():
             }
             for altitude, details in sorted(height_map.items())
         ]
+
 
 # Start USB reading thread
 usb_thread = threading.Thread(target=read_usb_data, daemon=True)
@@ -169,20 +174,24 @@ def root():
     with data_lock:
         return latest_data
 
+
 @app.get("/ws_node")
 def get_ws_node():
     with data_lock:
         return latest_data["WS_Node"]
+
 
 @app.get("/ws_data")
 def get_ws_data():
     with data_lock:
         return latest_data["WS_Data"]
 
+
 @app.get("/ws_data/time")
 def get_time():
     with data_lock:
         return latest_data["WS_Data"]["Time"]
+
 
 @app.get("/ws_data/geojson")
 def get_geojson():
@@ -195,6 +204,7 @@ def get_geojson():
             ]
         }
 
+
 @app.get("/ws_data/location")
 def get_location():
     with data_lock:
@@ -203,10 +213,12 @@ def get_location():
             "longitude": latest_data["WS_Data"]["longitude"]
         }
 
+
 @app.get("/ws_data/height")
 def get_height():
     with data_lock:
         return latest_data["WS_Data"]["altitude"]
+
 
 @app.get("/ws_data/internal")
 def get_internal():
@@ -217,15 +229,18 @@ def get_internal():
             "Pressure": latest_data["WS_Data"]["Internal_Pres"]
         }
 
+
 @app.get("/ws_data/temperature")
 def get_temperature():
     with data_lock:
         return latest_data["WS_Data"]["Weather"]["Air_Temperature"]
 
+
 @app.get("/ws_data/humidity")
 def get_humidity():
     with data_lock:
         return latest_data["WS_Data"]["Weather"]["RH"]
+
 
 @app.get("/inversion", response_model=Dict)
 def get_inversion():
@@ -236,10 +251,10 @@ def get_inversion():
     with data_lock:
         if not historical_records:
             return {"message": "No temperature records available yet"}
-        elif highest_record["altitude"]>lowest_record["altitude"]:
-            inversion_intensity=highest_record["temperature"]-lowest_record["temperature"]
-            inversion_height=highest_record["altitude"]-lowest_record["altitude"]
-            inversion_rate=inversion_intensity/inversion_height
+        elif highest_record["altitude"] > lowest_record["altitude"]:
+            inversion_intensity = highest_record["temperature"] - lowest_record["temperature"]
+            inversion_height = highest_record["altitude"] - lowest_record["altitude"]
+            inversion_rate = inversion_intensity / inversion_height
             return {
                 "highest_temperature": highest_record["temperature"],
                 "highest_altitude": highest_record["altitude"],
@@ -248,14 +263,11 @@ def get_inversion():
                 "lowest_altitude": lowest_record["altitude"],
                 "lowest_timestamp": lowest_record["timestamp"],
                 "total_samples": len(historical_records),
-                "inversion_intensity":inversion_intensity,
-                "inversion_height":inversion_height,
-                "inversion_rate":inversion_rate
-                }
+                "inversion_intensity": inversion_intensity,
+                "inversion_height": inversion_height,
+                "inversion_rate": inversion_rate
+            }
         else:
-            inversion_intensity=0
-            inversion_height=0
-            inversion_rate=0
             return {
                 "highest_temperature": highest_record["temperature"],
                 "highest_altitude": highest_record["altitude"],
@@ -264,15 +276,13 @@ def get_inversion():
                 "lowest_altitude": lowest_record["altitude"],
                 "lowest_timestamp": lowest_record["timestamp"],
                 "total_samples": len(historical_records),
-                "inversion_intensity":inversion_intensity,
-                "inversion_height":inversion_height,
-                "inversion_rate":inversion_rate
+                "inversion_intensity": 0,
+                "inversion_height": 0,
+                "inversion_rate": 0
             }
 
-# Include all your existing endpoints here...
 
-# API endpoints
-@app.get("/records/grouped_by_height")
+@app.get("/records/grouped_by_height") #never use this one
 def get_grouped_records():
     """
     Endpoint to retrieve grouped records by altitude with average temperatures.
@@ -282,21 +292,47 @@ def get_grouped_records():
             process_records_by_height()  # Process records if not already grouped
         return {"grouped_records": grouped_records}
 
+
 @app.get("/records/height_and_temperature")
-def get_height_and_temperature():
+def get_height_and_temperature(bin_size: int = 2):
     """
-    Endpoint to retrieve only the altitude and average temperature from grouped records.
+    Endpoint to retrieve altitude bins with average Air_Temperature and RH.
     """
     with data_lock:
-        if not grouped_records:
-            process_records_by_height()  # Process records if not already grouped
-        return [
+        # Dictionary to store altitude bins
+        altitude_bins = {}
+
+        for record in historical_records:
+            altitude = record.get("altitude")
+            temperature = record.get("temperature")
+            humidity = latest_data["WS_Data"]["Weather"].get("RH")
+
+            if altitude is not None and temperature is not None and humidity is not None:
+                # Determine the bin for the current altitude
+                bin_start = (altitude // bin_size) * bin_size
+                bin_end = bin_start + bin_size
+                bin_label = f"{bin_start}-{bin_end}m"
+
+                # Initialize bin if not already present
+                if bin_label not in altitude_bins:
+                    altitude_bins[bin_label] = {"temperatures": [], "humidities": []}
+
+                # Add data to the bin
+                altitude_bins[bin_label]["temperatures"].append(temperature)
+                altitude_bins[bin_label]["humidities"].append(humidity)
+
+        # Compute averages for each bin
+        height_and_temperature = [
             {
-                "altitude": record["altitude"],
-                "average_temperature": record["average_temperature"]
+                "altitude_bin": bin_label,
+                "average_temperature": sum(bin_data["temperatures"]) / len(bin_data["temperatures"]),
+                "average_humidity": sum(bin_data["humidities"]) / len(bin_data["humidities"])
             }
-            for record in grouped_records
+            for bin_label, bin_data in sorted(altitude_bins.items())
         ]
+
+        return height_and_temperature
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
