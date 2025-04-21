@@ -254,9 +254,6 @@ def get_inversion():
                 "inversion_rate":inversion_rate
                 }
         else:
-            inversion_intensity=0
-            inversion_height=0
-            inversion_rate=0
             return {
                 "highest_temperature": highest_record["temperature"],
                 "highest_altitude": highest_record["altitude"],
@@ -265,9 +262,9 @@ def get_inversion():
                 "lowest_altitude": lowest_record["altitude"],
                 "lowest_timestamp": lowest_record["timestamp"],
                 "total_samples": len(historical_records),
-                "inversion_intensity":inversion_intensity,
-                "inversion_height":inversion_height,
-                "inversion_rate":inversion_rate
+                "inversion_intensity":0,
+                "inversion_height":0,
+                "inversion_rate":0
             }
 
 @app.get("/records/grouped_by_height")
@@ -281,20 +278,44 @@ def get_grouped_records():
         return {"grouped_records": grouped_records}
  
 @app.get("/records/height_and_temperature")
-def get_height_and_temperature():
+def get_height_and_temperature(bin_size: int = 2):
     """
-    Endpoint to retrieve only the altitude and average temperature from grouped records.
+    Endpoint to retrieve altitude bins with average Air_Temperature and RH.
     """
     with data_lock:
-        if not grouped_records:
-            process_records_by_height()  # Process records if not already grouped
-        return [
+        # Dictionary to store altitude bins
+        altitude_bins = {}
+
+        for record in historical_records:
+            altitude = record.get("altitude")
+            temperature = record.get("temperature")
+            humidity = latest_data["WS_Data"]["Weather"].get("RH")
+
+            if altitude is not None and temperature is not None and humidity is not None:
+                # Determine the bin for the current altitude
+                bin_start = (altitude // bin_size) * bin_size
+                bin_end = bin_start + bin_size
+                bin_label = f"{bin_start}-{bin_end}m"
+
+                # Initialize bin if not already present
+                if bin_label not in altitude_bins:
+                    altitude_bins[bin_label] = {"temperatures": [], "humidities": []}
+
+                # Add data to the bin
+                altitude_bins[bin_label]["temperatures"].append(temperature)
+                altitude_bins[bin_label]["humidities"].append(humidity)
+
+        # Compute averages for each bin
+        height_and_temperature = [
             {
-                "altitude": record["altitude"],
-                "average_temperature": record["average_temperature"]
+                "altitude_bin": bin_label,
+                "average_temperature": sum(bin_data["temperatures"]) / len(bin_data["temperatures"]),
+                "average_humidity": sum(bin_data["humidities"]) / len(bin_data["humidities"])
             }
-            for record in grouped_records
+            for bin_label, bin_data in sorted(altitude_bins.items())
         ]
+
+        return height_and_temperature
  
 # Get IPv4:
 import socket

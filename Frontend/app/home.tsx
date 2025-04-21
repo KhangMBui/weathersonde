@@ -11,6 +11,7 @@ import MapView, {
 import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
+import { useUnitConversion } from "@/hooks/useUnitConversion";
 // import { useLocalIPv4 } from "@/hooks/getIPAdress";
 
 export default function HomeScreen() {
@@ -40,6 +41,7 @@ export default function HomeScreen() {
   });
 
   // const { ipAddress, error } = useLocalIPv4();
+  const { convertTemperature, convertDistance } = useUnitConversion();
 
   useEffect(() => {
     getDroneInfo();
@@ -64,16 +66,21 @@ export default function HomeScreen() {
         Internal_Pres: internalPres,
         Weather: { Air_Temperature: airTemp, RH: weatherRH },
       } = response.data;
-      // console.log("Drone location fetched: ", latitude, longitude);
+
+      // Convert values based on global units
+      const convertedAltitude = convertDistance(altitude);
+      const convertedInternalTemp = convertTemperature(internalTemp);
+      const convertedAirTemp = convertTemperature(airTemp);
+
       setDroneLocation({ latitude, longitude });
       setGeneralInfo({
         date,
         time,
-        altitude,
-        internalTemp,
+        altitude: convertedAltitude,
+        internalTemp: convertedInternalTemp,
         internalRH,
         internalPres,
-        airTemp,
+        airTemp: convertedAirTemp,
         weatherRH,
       });
       setMapRegion({
@@ -143,9 +150,8 @@ export default function HomeScreen() {
         <Text style={styles.infoText}>
           Date: {generalInfo.date}, Time: {generalInfo.time}
           {"\n"}
-          Temp: {parseFloat(generalInfo.airTemp).toFixed(2)}°C, Humidity:{" "}
-          {parseFloat(generalInfo.weatherRH).toFixed(2)}%, Alt:{" "}
-          {parseFloat(generalInfo.altitude).toFixed(1)}m
+          Temp: {generalInfo.airTemp}, Humidity: {generalInfo.weatherRH}, Alt:{" "}
+          {generalInfo.altitude}
         </Text>
       </View>
 

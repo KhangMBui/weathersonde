@@ -8,9 +8,11 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import OptionHeader from "@/components/optionHeader";
-// import SensorModal from "@/components/SensorModal";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useSettings } from "@/hooks/SettingsContext";
+import { useUnitConversion } from "@/hooks/useUnitConversion";
+// import SensorModal from "@/components/SensorModal";
 // import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function Data() {
@@ -19,6 +21,7 @@ export default function Data() {
   const [selectedTab, setSelectedTab] = useState("Real-Time");
   const [message, setMessage] = useState("Loading...");
   // const [isModalVisible, setModalVisible] = useState(false);
+  const { convertTemperature, convertDistance } = useUnitConversion();
 
   const [generalInfo, setGeneralInfo] = useState({
     date: "",
@@ -78,6 +81,7 @@ export default function Data() {
       });
     }
   }, [generalInfo]);
+
   const getDroneInfo = async () => {
     try {
       const response = await axios.get("http://172.29.208.1:8000/ws_data");
@@ -92,17 +96,22 @@ export default function Data() {
         Internal_Pres: internalPres,
         Weather: { Air_Temperature: airTemp, RH: weatherRH },
       } = response.data;
-      // console.log("Drone location fetched: ", latitude, longitude);
+
+      // Convert values based on global units
+      const convertedAltitude = convertDistance(altitude);
+      const convertedInternalTemp = convertTemperature(internalTemp);
+      const convertedAirTemp = convertTemperature(airTemp);
+
       const snapshot = {
         date,
         time,
         latitude,
         longitude,
-        altitude,
-        internalTemp,
+        altitude: convertedAltitude,
+        internalTemp: convertedInternalTemp,
         internalRH,
         internalPres,
-        airTemp,
+        airTemp: convertedAirTemp,
         weatherRH,
       };
 
@@ -141,6 +150,8 @@ export default function Data() {
       console.error("Error fetching inversion data:", error);
     }
   };
+
+  const { temperatureUnit, distanceUnit } = useSettings();
 
   return (
     <View style={styles.mainContainer}>
