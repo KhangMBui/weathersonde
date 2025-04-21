@@ -1,9 +1,17 @@
-import { View, StyleSheet, Text, Switch, TextInput } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  // Switch,
+  // TextInput,
+  // Button,
+} from "react-native";
 import { Stack } from "expo-router";
 import { useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import Footer from "@/components/footer";
-import SensorModal from "@/components/SensorModal";
+import Header from "@/components/header";
+// import SensorModal from "@/components/SensorModal";
 import { TouchableOpacity } from "react-native";
 
 export default function Settings() {
@@ -11,12 +19,12 @@ export default function Settings() {
   const [dynamicSpeed, setDynamicSpeed] = useState(false);
   const [temperatureUnit, setTemperatureUnit] = useState("°F");
   const [distanceUnit, setDistanceUnit] = useState("ft");
-  const [speed, setSpeed] = useState("0.0");
-  const [dataPoints, setDataPoints] = useState("10.0");
-
   const [tempOpen, setTempOpen] = useState(false);
   const [distOpen, setDistOpen] = useState(false);
-  const [speedOpen, setSpeedOpen] = useState(false);
+
+  // const [speed, setSpeed] = useState("0.0");
+  // const [dataPoints, setDataPoints] = useState("10.0");
+  // const [speedOpen, setSpeedOpen] = useState(false);
 
   const tempUnits = [
     { label: "°C", value: "°C" },
@@ -34,8 +42,10 @@ export default function Settings() {
 
   return (
     <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header />
+      <Text style={styles.settingsTitle}>Settings</Text>
       <View style={styles.mainContainer}>
-        <Stack.Screen options={{ headerShown: false }} />
         {/* <SensorModal
           isVisible={isModalVisible}
           onClose={() => setModalVisible(false)}
@@ -52,7 +62,7 @@ export default function Settings() {
               if (open) {
                 setTempOpen(open);
                 setDistOpen(!open);
-                setSpeedOpen(!open);
+                // setSpeedOpen(!open);
               } else {
                 setTempOpen(false); // Close dropdown if it's already open
               }
@@ -75,7 +85,7 @@ export default function Settings() {
             setOpen={(open) => {
               if (open) {
                 setDistOpen(open);
-                setSpeedOpen(!open);
+                // setSpeedOpen(!open);
                 setTempOpen(!open);
               } else {
                 setDistOpen(false); // Close dropdown if it's already open
@@ -89,6 +99,9 @@ export default function Settings() {
             dropDownContainerStyle={styles.dropdownContainer}
           />
         </View>
+        <TouchableOpacity style={styles.applyButton} onPress={() => {}}>
+          <Text style={styles.applyButtonText}>Apply Changes</Text>
+        </TouchableOpacity>
         {/* Data Collection */}
         {/* <Text style={styles.sectionHeader}>Data Collection</Text>
         <View style={styles.row}>
@@ -154,18 +167,44 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 0,
+    marginTop: -15,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 10,
   },
-
+  settingsTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+    color: "#333",
+    paddingTop: 10,
+  },
   switch: {
     marginTop: 10,
   },
-
+  applyButton: {
+    backgroundColor: "#A20025", // Dark red color
+    borderRadius: 8, // Rounded corners
+    paddingVertical: 12, // Vertical padding for better height
+    paddingHorizontal: 20, // Horizontal padding for better width
+    marginTop: 20, // Add spacing from other elements
+    alignItems: "center", // Center the button text
+    justifyContent: "center", // Center the button text
+    shadowColor: "#000", // Add shadow for depth
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3, // Shadow for Android
+  },
+  applyButtonText: {
+    color: "#fff", // White text for contrast
+    fontSize: 16, // Font size for readability
+    fontWeight: "bold", // Bold text for emphasis
+  },
   subLabel: {
     fontSize: 14,
     color: "gray",

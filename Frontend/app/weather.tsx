@@ -111,41 +111,43 @@ export default function Weather() {
   }
 
   return (
-    <View style={styles.container}>
+    <>
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
       <Text style={styles.title}>Weather Information</Text>
-      {weatherData ? (
-        <View style={styles.card}>
-          <Text style={styles.info}>
-            📍 Location: {droneLocation.latitude}, {droneLocation.longitude}
-          </Text>
-          <Text style={styles.weatherText}>
-            🕒 Time: {weatherData.hourly.time[0].toISOString()}
-          </Text>
-          <Text style={styles.weatherText}>
-            🌡️ Temperature (80m): {weatherData.hourly.temperature80m[0]}°C
-          </Text>
-          <Text style={styles.weatherText}>
-            💧 Relative Humidity (2m):{" "}
-            {weatherData.hourly.relativeHumidity2m[0]}%
-          </Text>
-          <Text style={styles.weatherText}>
-            ❄️ Dew Point (2m): {weatherData.hourly.dewPoint2m[0]}°C
-          </Text>
-          <Text style={styles.weatherText}>
-            🌬️ Wind Speed (80m): {weatherData.hourly.windSpeed80m[0]} m/s
-          </Text>
-          <Text style={styles.weatherText}>
-            🌱 Soil Temperature (0cm):{" "}
-            {weatherData.hourly.soilTemperature0cm[0]}°C
-          </Text>
-        </View>
-      ) : (
-        <Text>No weather data available.</Text>
-      )}
-      <Footer />
-    </View>
+      <View style={styles.container}>
+        {weatherData ? (
+          <View style={styles.card}>
+            <Text style={styles.info}>
+              📍 Location: {droneLocation.latitude}, {droneLocation.longitude}
+            </Text>
+            <Text style={styles.weatherText}>
+              🕒 Time: {weatherData.hourly.time[0].toISOString()}
+            </Text>
+            <Text style={styles.weatherText}>
+              🌡️ Temperature (80m): {weatherData.hourly.temperature80m[0]}°C
+            </Text>
+            <Text style={styles.weatherText}>
+              💧 Relative Humidity (2m):{" "}
+              {weatherData.hourly.relativeHumidity2m[0]}%
+            </Text>
+            <Text style={styles.weatherText}>
+              ❄️ Dew Point (2m): {weatherData.hourly.dewPoint2m[0]}°C
+            </Text>
+            <Text style={styles.weatherText}>
+              🌬️ Wind Speed (80m): {weatherData.hourly.windSpeed80m[0]} m/s
+            </Text>
+            <Text style={styles.weatherText}>
+              🌱 Soil Temperature (0cm):{" "}
+              {weatherData.hourly.soilTemperature0cm[0]}°C
+            </Text>
+          </View>
+        ) : (
+          <Text>No weather data available.</Text>
+        )}
+        <Footer />
+      </View>
+    </>
   );
 }
 
@@ -153,11 +155,14 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f7f7f7",
     flex: 1,
+    paddingTop: 10,
   },
   title: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 15,
+    textAlign: "center",
+    color: "#333",
   },
   card: {
     padding: 16,
