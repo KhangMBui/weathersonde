@@ -34,8 +34,8 @@ latest_data = {
   "WS_Data": {
     "Date": "10/31/2024",
     "Time": "14:40:49",
-    "latitude": 46.911334,
-    "longitude": -119.742122,
+    "latitude": 46.7298,
+    "longitude": -117.1817,
     "altitude": "15.3 m",
     "Internal_Temp": "25 °C",
     "Internal_RH": "34%",
@@ -296,7 +296,13 @@ def get_height_and_temperature():
             for record in grouped_records
         ]
  
-
+# Get IPv4:
+import socket
+@app.get("/get_ip")
+def get_ip():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    return {"ip": ip_address}
 
 # Test data changing:
 import random

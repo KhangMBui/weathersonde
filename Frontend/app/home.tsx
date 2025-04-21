@@ -11,6 +11,7 @@ import MapView, {
 import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
+// import { useLocalIPv4 } from "@/hooks/getIPAdress";
 
 export default function HomeScreen() {
   const mapRef = useRef<MapView | null>(null); // Map reference
@@ -38,13 +39,20 @@ export default function HomeScreen() {
     longitudeDelta: 0.0421,
   });
 
+  // const { ipAddress, error } = useLocalIPv4();
+
   useEffect(() => {
     getDroneInfo();
   }, []);
 
   const getDroneInfo = async () => {
+    // if (!ipAddress) {
+    //   console.error("Unable to discover server IP.");
+    //   return;
+    // }
+    // console.log(ipAddress);
     try {
-      const response = await axios.get("http://172.29.208.1:8000/ws_data");
+      const response = await axios.get(`http://172.29.208.1:8000/ws_data`);
       const {
         Date: date,
         Time: time,

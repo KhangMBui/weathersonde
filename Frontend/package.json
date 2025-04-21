@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start-clear": "expo start -c",
     "tunnel": "expo start --tunnel",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
@@ -44,10 +45,13 @@
     "react-native-gesture-handler": "~2.20.2",
     "react-native-maps": "1.18.0",
     "react-native-modal": "^14.0.0-rc.1",
+    "react-native-network-info": "^5.2.1",
     "react-native-paper": "^5.13.1",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.5"
+    "react-native-webview": "13.12.5",
+    "expo-network": "~7.0.5",
+    "@react-native-community/netinfo": "11.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
