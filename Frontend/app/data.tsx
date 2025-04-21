@@ -23,14 +23,27 @@ export default function Data() {
   // const [isModalVisible, setModalVisible] = useState(false);
   const { convertTemperature, convertDistance } = useUnitConversion();
 
-  const [generalInfo, setGeneralInfo] = useState({
+  const [generalInfo, setGeneralInfo] = useState<{
+    date: string;
+    time: string;
+    altitude: number | null;
+    internalTemp: number | null;
+    internalRH: string;
+    internalPres: string;
+    airTemp: number | null;
+    weatherRH: string;
+    inversionIntensity: string;
+    inversionHeight: string;
+    inversionRate: string;
+    totalSamples: string;
+  }>({
     date: "",
     time: "",
-    altitude: "",
-    internalTemp: "",
+    altitude: null,
+    internalTemp: null,
     internalRH: "",
     internalPres: "",
-    airTemp: "",
+    airTemp: null,
     weatherRH: "",
     inversionIntensity: "",
     inversionHeight: "",
@@ -42,13 +55,26 @@ export default function Data() {
   const [historicalData, setHistoricalData] = useState<any[]>([]);
 
   useEffect(() => {
-    // Fetch data at regular intervals
-    const interval = setInterval(() => {
-      getDroneInfo();
-      getInversionData();
-    }, 10000); // Fetch every 2 seconds
+    let isMounted = true; // To prevent state updates on unmounted components
 
-    return () => clearInterval(interval); // Cleanup on component unmount
+    const fetchData = async () => {
+      try {
+        await getDroneInfo();
+        await getInversionData();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+
+      if (isMounted) {
+        setTimeout(fetchData, 3000); // Schedule the next fetch after 3 seconds
+      }
+    };
+
+    fetchData(); // Start the first fetch
+
+    return () => {
+      isMounted = false; // Cleanup on component unmount
+    };
   }, []);
 
   useEffect(() => {
@@ -69,11 +95,13 @@ export default function Data() {
       };
 
       setHistoricalData((prevData) => {
-        // Check if the new entry is already in the historical data
-        if (
-          prevData.length > 0 &&
-          JSON.stringify(prevData[0]) === JSON.stringify(newEntry)
-        ) {
+        // Check if the new entry already exists in the historical data
+        const isDuplicate = prevData.some(
+          (entry) =>
+            entry.date === newEntry.date && entry.time === newEntry.time
+        );
+
+        if (isDuplicate) {
           return prevData; // Avoid adding duplicate entries
         }
         const updatedData = [newEntry, ...prevData];
@@ -84,7 +112,7 @@ export default function Data() {
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://172.29.208.1:8000/ws_data");
+      const response = await axios.get("http://192.168.56.1:8000/ws_data");
       const {
         Date: date,
         Time: time,
@@ -131,7 +159,7 @@ export default function Data() {
 
   const getInversionData = async () => {
     try {
-      const response = await axios.get("http://172.29.208.1:8000/inversion");
+      const response = await axios.get("http://192.168.56.1:8000/inversion");
       const data = response.data;
 
       const inversionData = {
@@ -230,7 +258,7 @@ export default function Data() {
           contentContainerStyle={{ paddingBottom: 80 }}
         >
           <Text style={styles.infoTitle}>Historical Drone Data</Text>
-          {historicalData.map((item) => {
+          {historicalData.map((item, index) => {
             const uniqueId = `${item.date}-${item.time}`; // Create a unique identifier for each item
             return (
               <View key={uniqueId} style={styles.infoCard}>

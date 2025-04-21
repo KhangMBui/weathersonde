@@ -1,3 +1,6 @@
+/**
+ * @jest-environment @shopify/react-native-skia/jestEnv.mjs
+ */
 import Footer from "@/components/footer";
 import { View, StyleSheet } from "react-native";
 // import SensorModal from "@/components/SensorModal";
@@ -5,12 +8,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Header from "@/components/header";
 import { Stack } from "expo-router";
-// import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Canvas, Circle, Group } from "@shopify/react-native-skia";
+import LineGraph from "@/components/LineGraph";
 
 export default function Analytics() {
   const [message, setMessage] = useState("Loading...");
-  // const [isModalVisible, setModalVisible] = useState(false);
-
   const [generalInfo, setGeneralInfo] = useState({
     date: "",
     time: "",
@@ -71,7 +73,7 @@ export default function Analytics() {
   }, [generalInfo]);
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://172.29.208.1:8000/ws_data");
+      const response = await axios.get("http://192.168.56.1:8000/ws_data");
       const {
         Date: date,
         Time: time,
@@ -113,7 +115,7 @@ export default function Analytics() {
 
   const getInversionData = async () => {
     try {
-      const response = await axios.get("http://172.29.208.1:8000/inversion");
+      const response = await axios.get("http://192.168.56.1:8000/inversion");
       const data = response.data;
 
       const inversionData = {
@@ -133,14 +135,22 @@ export default function Analytics() {
     }
   };
 
+  // const width = 256;
+  // const height = 256;
+  // const r = width * 0.33;
+
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
-      {/* <SensorModal
-        isVisible={isModalVisible}
-        onClose={() => setModalVisible(false)}
-      /> */}
+      {/* <Canvas style={{ width, height }}>
+        <Group blendMode="multiply">
+          <Circle cx={r} cy={r} r={r} color="cyan" />
+          <Circle cx={width - r} cy={r} r={r} color="magenta" />
+          <Circle cx={width / 2} cy={width - r} r={r} color="yellow" />
+        </Group>
+      </Canvas> */}
+      <LineGraph />
       <Footer />
     </View>
   );

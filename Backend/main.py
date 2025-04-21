@@ -72,7 +72,7 @@ def clean_sensor_value(val):
 def read_usb_data():
     global latest_data, historical_records, highest_record, lowest_record
     try:
-        ser = serial.Serial('COM8', baudrate=57600, timeout=1)
+        ser = serial.Serial('COM5', baudrate=57600, timeout=1)
         ser.flushInput()
        
         while True:
@@ -283,6 +283,15 @@ def get_height_and_temperature(bin_size: int = 2):
     Endpoint to retrieve altitude bins with average Air_Temperature and RH.
     """
     with data_lock:
+        # # Generate random data for testing
+        # random_records = [
+        #     {
+        #         "altitude": random.uniform(0, 100),  # Altitude between 0 and 100 meters
+        #         "temperature": random.uniform(15, 35),  # Temperature between 15°C and 35°C
+        #         "humidity": random.uniform(30, 70),  # Humidity between 30% and 70%
+        #     }
+        #     for _ in range(100)  # Generate 100 random records
+        # ]
         # Dictionary to store altitude bins
         altitude_bins = {}
 
@@ -325,32 +334,32 @@ def get_ip():
     ip_address = socket.gethostbyname(hostname)
     return {"ip": ip_address}
 
-# Test data changing:
-import random
+# # Test data changing:
+# import random
 
-def simulate_data_updates():
-    """Simulate constant updates to the latest_data structure."""
-    global latest_data
-    while True:
-        with data_lock:
-            # Update WS_Data with random or incremented values
-            latest_data["WS_Data"]["Date"] = time.strftime("%m/%d/%Y")
-            latest_data["WS_Data"]["Time"] = time.strftime("%H:%M:%S")
-            latest_data["WS_Data"]["latitude"] += random.uniform(-0.001, 0.001)
-            latest_data["WS_Data"]["longitude"] += random.uniform(-0.001, 0.001)
-            latest_data["WS_Data"]["altitude"] = f"{random.uniform(10, 20):.1f} m"
-            latest_data["WS_Data"]["Internal_Temp"] = f"{random.uniform(20, 30):.1f} °C"
-            latest_data["WS_Data"]["Internal_RH"] = f"{random.uniform(30, 50):.1f}%"
-            latest_data["WS_Data"]["Internal_Pres"] = f"{random.uniform(5, 10):.1f} kPa"
-            latest_data["WS_Data"]["Weather"]["Air_Temperature"] = f"{random.uniform(20, 30):.1f} °C"
-            latest_data["WS_Data"]["Weather"]["RH"] = f"{random.uniform(40, 60):.1f}%"
+# def simulate_data_updates():
+#     """Simulate constant updates to the latest_data structure."""
+#     global latest_data
+#     while True:
+#         with data_lock:
+#             # Update WS_Data with random or incremented values
+#             latest_data["WS_Data"]["Date"] = time.strftime("%m/%d/%Y")
+#             latest_data["WS_Data"]["Time"] = time.strftime("%H:%M:%S")
+#             latest_data["WS_Data"]["latitude"] += random.uniform(-0.001, 0.001)
+#             latest_data["WS_Data"]["longitude"] += random.uniform(-0.001, 0.001)
+#             latest_data["WS_Data"]["altitude"] = f"{random.uniform(10, 20):.1f} m"
+#             latest_data["WS_Data"]["Internal_Temp"] = f"{random.uniform(20, 30):.1f} °C"
+#             latest_data["WS_Data"]["Internal_RH"] = f"{random.uniform(30, 50):.1f}%"
+#             latest_data["WS_Data"]["Internal_Pres"] = f"{random.uniform(5, 10):.1f} kPa"
+#             latest_data["WS_Data"]["Weather"]["Air_Temperature"] = f"{random.uniform(20, 30):.1f} °C"
+#             latest_data["WS_Data"]["Weather"]["RH"] = f"{random.uniform(40, 60):.1f}%"
         
-        # Wait for a short interval before updating again
-        time.sleep(10)
+#         # Wait for a short interval before updating again
+#         time.sleep(10)
 
 # Start the simulation in a separate thread
-simulation_thread = threading.Thread(target=simulate_data_updates, daemon=True)
-simulation_thread.start()
+# simulation_thread = threading.Thread(target=simulate_data_updates, daemon=True)
+# simulation_thread.start()
 
  
 if __name__ == "__main__":

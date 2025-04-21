@@ -3,32 +3,28 @@ import { useSettings } from "@/hooks/SettingsContext";
 export const useUnitConversion = () => {
   const { temperatureUnit, distanceUnit } = useSettings(); // Access global units
 
-  const convertTemperature = (temp: string): string => {
-    const numericValue = parseFloat(temp); // Extract numeric value
-    if (temperatureUnit === "°F" && temp.includes("°C")) {
-      // Convert °C to °F
-      const converted = (numericValue * 9) / 5 + 32;
-      return `${converted.toFixed(1)} °F`;
-    } else if (temperatureUnit === "°C" && temp.includes("°F")) {
-      // Convert °F to °C
-      const converted = ((numericValue - 32) * 5) / 9;
-      return `${converted.toFixed(1)} °C`;
+  const convertTemperature = (temp: number): number => {
+    // If the global unit is °C, do nothing
+    if (temperatureUnit === "°C") {
+      return temp;
     }
-    return temp; // No conversion needed
+    // If the global unit is °F, convert °C to °F
+    if (temperatureUnit === "°F") {
+      return (temp * 9) / 5 + 32;
+    }
+    return temp; // Default fallback
   };
 
-  const convertDistance = (distance: string): string => {
-    const numericValue = parseFloat(distance); // Extract numeric value
-    if (distanceUnit === "ft" && distance.includes("m")) {
-      // Convert meters to feet
-      const converted = numericValue * 3.28084;
-      return `${converted.toFixed(1)} ft`;
-    } else if (distanceUnit === "m" && distance.includes("ft")) {
-      // Convert feet to meters
-      const converted = numericValue / 3.28084;
-      return `${converted.toFixed(1)} m`;
+  const convertDistance = (distance: number): number => {
+    // If the global unit is meters, do nothing
+    if (distanceUnit === "m") {
+      return distance;
     }
-    return distance; // No conversion needed
+    // If the global unit is feet, convert meters to feet
+    if (distanceUnit === "ft") {
+      return parseFloat((distance * 3.28084).toFixed(2));
+    }
+    return distance; // Default fallback
   };
 
   return { convertTemperature, convertDistance };

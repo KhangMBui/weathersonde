@@ -22,14 +22,23 @@ export default function HomeScreen() {
     longitude: 0,
   });
 
-  const [generalInfo, setGeneralInfo] = useState({
+  const [generalInfo, setGeneralInfo] = useState<{
+    date: string;
+    time: string;
+    altitude: number | null;
+    internalTemp: number | null;
+    internalRH: string;
+    internalPres: string;
+    airTemp: number | null;
+    weatherRH: string;
+  }>({
     date: "",
     time: "",
-    altitude: "",
-    internalTemp: "",
+    altitude: null,
+    internalTemp: null,
     internalRH: "",
     internalPres: "",
-    airTemp: "",
+    airTemp: null,
     weatherRH: "",
   });
 
@@ -54,7 +63,7 @@ export default function HomeScreen() {
     // }
     // console.log(ipAddress);
     try {
-      const response = await axios.get(`http://172.29.208.1:8000/ws_data`);
+      const response = await axios.get(`http://192.168.56.1:8000/ws_data`);
       const {
         Date: date,
         Time: time,
