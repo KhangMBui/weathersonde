@@ -294,23 +294,23 @@ def get_height_and_temperature(bin_size: int = 1):
         #     for _ in range(100)  # Generate 100 random records
         # ]
         # Dictionary to store altitude bins
-        predefined_records = [
-            {"altitude": 0.5, "temperature": 24.3, "humidity": 45},
-            {"altitude": 1.5, "temperature": 24.6, "humidity": 46},
-            {"altitude": 2.5, "temperature": 24.4, "humidity": 47},
-            {"altitude": 3.5, "temperature": 24.9, "humidity": 48},
-            {"altitude": 4.5, "temperature": 25.1, "humidity": 49},
-            {"altitude": 5.5, "temperature": 24.8, "humidity": 50},
-            {"altitude": 6.5, "temperature": 25.2, "humidity": 51},
-            {"altitude": 7.5, "temperature": 24.7, "humidity": 52},
-        ]
+        # predefined_records = [
+        #     {"altitude": 0.5, "temperature": 24.3, "humidity": 45},
+        #     {"altitude": 1.5, "temperature": 24.6, "humidity": 46},
+        #     {"altitude": 2.5, "temperature": 24.4, "humidity": 47},
+        #     {"altitude": 3.5, "temperature": 24.9, "humidity": 48},
+        #     {"altitude": 4.5, "temperature": 25.1, "humidity": 49},
+        #     {"altitude": 5.5, "temperature": 24.8, "humidity": 50},
+        #     {"altitude": 6.5, "temperature": 25.2, "humidity": 51},
+        #     {"altitude": 7.5, "temperature": 24.7, "humidity": 52},
+        # ]
         altitude_bins = {}
 
-        for record in predefined_records:
+        for record in historical_records:
             altitude = record.get("altitude")
             temperature = record.get("temperature")
             humidity = latest_data["WS_Data"]["Weather"].get("RH")
-            humidity = record.get("humidity")
+            # humidity = record.get("humidity")
 
             if altitude is not None and temperature is not None and humidity is not None:
                 # Determine the bin for the current altitude
@@ -338,13 +338,6 @@ def get_height_and_temperature(bin_size: int = 1):
 
         return height_and_temperature
  
-# Get IPv4:
-import socket
-@app.get("/get_ip")
-def get_ip():
-    hostname = socket.gethostname()
-    ip_address = socket.gethostbyname(hostname)
-    return {"ip": ip_address}
 
 # # Test data changing:
 # import random
