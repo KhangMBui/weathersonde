@@ -1,31 +1,27 @@
-// OptionHeader.tsx (example)
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import React from "react";
 
 interface Props {
+  tabs: string[]; // Array of tab names
   selectedTab: string;
   onTabChange: (tab: string) => void;
 }
 
-export default function OptionHeader({ selectedTab, onTabChange }: Props) {
+export default function OptionHeader({
+  tabs,
+  selectedTab,
+  onTabChange,
+}: Props) {
   return (
     <View style={styles.tabContainer}>
-      <TouchableOpacity onPress={() => onTabChange("Real-Time")}>
-        <Text
-          style={selectedTab === "Real-Time" ? styles.activeTab : styles.tab}
-        >
-          Real Time
-        </Text>
-        {selectedTab === "Real-Time" && <View style={styles.indicator} />}
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onTabChange("Historical")}>
-        <Text
-          style={selectedTab === "Historical" ? styles.activeTab : styles.tab}
-        >
-          Historical
-        </Text>
-        {selectedTab === "Historical" && <View style={styles.indicator} />}
-      </TouchableOpacity>
+      {tabs.map((tab) => (
+        <TouchableOpacity key={tab} onPress={() => onTabChange(tab)}>
+          <Text style={selectedTab === tab ? styles.activeTab : styles.tab}>
+            {tab}
+          </Text>
+          {selectedTab === tab && <View style={styles.indicator} />}
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }

@@ -10,7 +10,6 @@ import { Stack } from "expo-router";
 import OptionHeader from "@/components/optionHeader";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useSettings } from "@/hooks/SettingsContext";
 import { useUnitConversion } from "@/hooks/useUnitConversion";
 // import SensorModal from "@/components/SensorModal";
 // import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -179,14 +178,16 @@ export default function Data() {
     }
   };
 
-  const { temperatureUnit, distanceUnit } = useSettings();
-
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* <OptionHeader /> */}
-      <OptionHeader selectedTab={selectedTab} onTabChange={setSelectedTab} />
+      <OptionHeader
+        tabs={["Real-Time", "Historical"]}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
+      />
 
       {selectedTab === "Real-Time" ? (
         <View style={styles.infoContainer}>
@@ -225,15 +226,21 @@ export default function Data() {
             <Text style={styles.label}>🌪️ Inversion Data: </Text>
             <View style={styles.infoGroup}>
               <Text style={styles.label}>{"\t"}🔥 Inversion Intensity: </Text>
-              <Text style={styles.value}>{generalInfo.inversionIntensity}</Text>
+              <Text style={styles.value}>
+                {parseFloat(generalInfo.inversionIntensity).toFixed(3)}
+              </Text>
             </View>
             <View style={styles.infoGroup}>
               <Text style={styles.label}>{"\t"}📏 Inversion height:</Text>
-              <Text style={styles.value}>{generalInfo.inversionHeight}</Text>
+              <Text style={styles.value}>
+                {parseFloat(generalInfo.inversionHeight).toFixed(3)}
+              </Text>
             </View>
             <View style={styles.infoGroup}>
               <Text style={styles.label}>{"\t"}📉 Inversion rate:</Text>
-              <Text style={styles.value}>{generalInfo.inversionRate}</Text>
+              <Text style={styles.value}>
+                {parseFloat(generalInfo.inversionRate).toFixed(3)}
+              </Text>
             </View>
           </View>
           <View style={styles.infoCardGroup}>

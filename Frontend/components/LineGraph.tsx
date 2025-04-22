@@ -21,12 +21,23 @@ const fontFamily = Platform.select({ ios: "helvetia", default: "sans-serif" });
 const font = matchFont({ fontFamily, fontSize: 14 });
 
 // Utility function to generate tick marks
-const generateTicks = (min: number, max: number, numTicks: number) => {
-  const step = (max - min) / (numTicks - 1);
-  return Array.from({ length: numTicks }, (_, i) => min + i * step);
+// const generateTicks = (min: number, max: number, numTicks: number) => {
+//   if (numTicks <= 1) return [min]; // Handle edge case for 1 tick
+//   const step = (max - min) / (numTicks - 1);
+//   return Array.from({ length: numTicks }, (_, i) =>
+//     parseFloat((min + i * step).toFixed(6))
+//   );
+// };
+const generateTicks = (min: number, max: number, desiredStepSize: number) => {
+  const range = max - min;
+  const numTicks = Math.max(2, Math.ceil(range / desiredStepSize)); // Ensure at least 2 ticks
+  const step = range / (numTicks - 1);
+  return Array.from({ length: numTicks }, (_, i) =>
+    parseFloat((min + i * step).toFixed(6))
+  );
 };
 
-const LineGraph = () => {
+const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
   const { data, loading } = useHeightAndTemperatureData();
 
   if (loading) {
@@ -46,36 +57,48 @@ const LineGraph = () => {
     );
   }
 
-  // Determine the min and max values for temperature and altitude
-  const minTemperature = Math.min(
-    ...data.map((item) => item.average_temperature)
-  );
-  const maxTemperature = Math.max(
-    ...data.map((item) => item.average_temperature)
-  );
+  const isTemperatureGraph = selectedTab === "Altitude - Temperature";
+  const xAxisLabel = isTemperatureGraph ? "Temperature (°C)" : "Humidity (%)";
+  const xAxisDataKey = isTemperatureGraph
+    ? "average_temperature"
+    : "average_humidity";
+
+  // Determine the min and max values for temperature/humidity and altitude
   const minAltitude = Math.min(...data.map((item) => item.altitude));
   const maxAltitude = Math.max(...data.map((item) => item.altitude));
-
-  // Generate dynamic tick marks
-  const xTicks = generateTicks(minTemperature, maxTemperature, 6); // 6 ticks for x-axis
-  const yTicks = generateTicks(minAltitude, maxAltitude, 6); // 6 ticks for y-axis
+  let minX = Math.min(...data.map((item) => item[xAxisDataKey]));
+  let maxX = Math.max(...data.map((item) => item[xAxisDataKey]));
 
   // Normalize the data to fit within the graph dimensions
   const points = data.map((item) => ({
-    x:
-      50 +
-      ((item.average_temperature - minTemperature) /
-        (maxTemperature - minTemperature)) *
-        300, // Scale x-axis to fit between 50 and 350
+    x: 50 + ((item[xAxisDataKey] - minX) / (maxX - minX)) * 300, // Scale x-axis to fit between 50 and 350
     y:
-      300 - ((item.altitude - minAltitude) / (maxAltitude - minAltitude)) * 250, // Scale y-axis to fit between 50 and 300
+      300 - ((item.altitude - minAltitude) / (maxAltitude - minAltitude)) * 250, // Scale y-axis to fit between 300 and 50
   }));
+
+  // Determine the desired step size for x-axis and y-axis
+  const xStepSize = (maxX - minX) / 5; // Divide the range into 5 steps
+  const yStepSize = (maxAltitude - minAltitude) / 5;
+
+  // Generate dynamic tick marks with better precision
+  const xTicks = generateTicks(minX, maxX, xStepSize).map((tick) =>
+    parseFloat(tick.toFixed(3))
+  ); // Format to 3 decimal places
+  const yTicks = generateTicks(minAltitude, maxAltitude, yStepSize).map(
+    (tick) => parseFloat(tick.toFixed(1))
+  ); // Format to 1 decimal place
 
   // Create a path for the line graph
   const path = Skia.Path.Make();
   if (points.length > 0) {
     path.moveTo(points[0].x, points[0].y);
     points.forEach((point) => {
+      // Handle case where all x-axis values are the same
+      if (minX === maxX) {
+        console.warn("All x-axis values are the same. Adjusting range...");
+        minX -= 1; // Add a small range to avoid identical x values
+        maxX += 1;
+      }
       path.lineTo(point.x, point.y);
     });
   }
@@ -101,16 +124,11 @@ const LineGraph = () => {
           />
 
           {/* Add x-axis label */}
-          <SkiaText
-            x={120}
-            y={340} // Move the x-axis title further down
-            text="Average Temperature (°C)"
-            font={font}
-          />
+          <SkiaText x={150} y={340} text={xAxisLabel} font={font} />
           {/* Add y-axis label */}
           <SkiaText
-            x={-210} // Adjust x position to move it closer to the y-axis
-            y={14} // Center the label vertically along the y-axis
+            x={-210}
+            y={14}
             text="Altitude (m)"
             font={font}
             transform={[{ rotate: -Math.PI / 2 }]} // Rotate text for vertical alignment
@@ -118,38 +136,26 @@ const LineGraph = () => {
 
           {/* Draw tick marks and labels for x-axis */}
           {xTicks.map((value, index) => {
-            const label = value.toFixed(3); // Format to 1 decimal place
+            const label = value.toFixed(3); // Format to 3 decimal place
             const textWidth = font?.measureText(label).width ?? 0;
 
             return (
               <React.Fragment key={`x-tick-${index}`}>
                 <Line
                   p1={{
-                    x:
-                      50 +
-                      ((value - minTemperature) /
-                        (maxTemperature - minTemperature)) *
-                        300,
-                    y: 300,
+                    x: 50 + ((value - minX) / (maxX - minX)) * 300,
+                    y: 296,
                   }}
                   p2={{
-                    x:
-                      50 +
-                      ((value - minTemperature) /
-                        (maxTemperature - minTemperature)) *
-                        300,
-                    y: 310,
+                    x: 50 + ((value - minX) / (maxX - minX)) * 300,
+                    y: 305,
                   }}
                   color="#000"
                   strokeWidth={1}
                 />
                 <SkiaText
                   x={
-                    50 +
-                    ((value - minTemperature) /
-                      (maxTemperature - minTemperature)) *
-                      300 -
-                    textWidth / 2
+                    50 + ((value - minX) / (maxX - minX)) * 300 - textWidth / 2
                   } // Center-align the label
                   y={320}
                   text={label}
@@ -168,14 +174,14 @@ const LineGraph = () => {
               <React.Fragment key={`y-tick-${index}`}>
                 <Line
                   p1={{
-                    x: 45,
+                    x: 54,
                     y:
                       300 -
                       ((value - minAltitude) / (maxAltitude - minAltitude)) *
                         250,
                   }}
                   p2={{
-                    x: 50,
+                    x: 46,
                     y:
                       300 -
                       ((value - minAltitude) / (maxAltitude - minAltitude)) *
@@ -244,6 +250,7 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
     alignSelf: "center",
+    marginTop: 10,
   },
   loadingContainer: {
     flex: 1,

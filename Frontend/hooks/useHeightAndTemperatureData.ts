@@ -3,6 +3,7 @@ import axios from "axios";
 
 interface DataPoint {
   average_temperature: number;
+  average_humidity: number;
   altitude: number;
 }
 
@@ -22,6 +23,7 @@ const useHeightAndTemperatureData = (binSize = 2) => {
           const altitude = parseFloat(item.altitude_bin.split("-")[0]); // Extract lower bound of altitude
           return {
             average_temperature: item.average_temperature,
+            average_humidity: item.average_humidity,
             altitude,
           };
         });

@@ -2,13 +2,11 @@ import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-// import SensorModal from "@/components/SensorModal";
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useUnitConversion } from "@/hooks/useUnitConversion";
-// import { useLocalIPv4 } from "@/hooks/getIPAdress";
 
 export default function HomeScreen() {
   const mapRef = useRef<MapView | null>(null); // Map reference
@@ -76,11 +74,11 @@ export default function HomeScreen() {
       setGeneralInfo({
         date,
         time,
-        altitude: convertedAltitude,
-        internalTemp: convertedInternalTemp,
+        altitude: parseFloat(convertedAltitude.toFixed(2)),
+        internalTemp: parseFloat(convertedInternalTemp.toFixed(2)),
         internalRH,
         internalPres,
-        airTemp: convertedAirTemp,
+        airTemp: parseFloat(convertedAirTemp.toFixed(2)),
         weatherRH,
       });
       setMapRegion({

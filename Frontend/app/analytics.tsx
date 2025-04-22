@@ -6,10 +6,9 @@ import { View, StyleSheet } from "react-native";
 // import SensorModal from "@/components/SensorModal";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Header from "@/components/header";
 import { Stack } from "expo-router";
-import { Canvas, Circle, Group } from "@shopify/react-native-skia";
 import LineGraph from "@/components/LineGraph";
+import OptionHeader from "@/components/optionHeader";
 
 export default function Analytics() {
   const [message, setMessage] = useState("Loading...");
@@ -30,6 +29,8 @@ export default function Analytics() {
 
   // For constant data fetching on the historical page
   const [historicalData, setHistoricalData] = useState<any[]>([]);
+
+  const [selectedTab, setSelectedTab] = useState("Altitude - Temperature");
 
   useEffect(() => {
     // Fetch data at regular intervals
@@ -142,15 +143,13 @@ export default function Analytics() {
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header />
-      {/* <Canvas style={{ width, height }}>
-        <Group blendMode="multiply">
-          <Circle cx={r} cy={r} r={r} color="cyan" />
-          <Circle cx={width - r} cy={r} r={r} color="magenta" />
-          <Circle cx={width / 2} cy={width - r} r={r} color="yellow" />
-        </Group>
-      </Canvas> */}
-      <LineGraph />
+      {/* <Header /> */}
+      <OptionHeader
+        tabs={["Altitude - Temperature", "Altitude - Humidity"]}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
+      />
+      <LineGraph selectedTab={selectedTab} />
       <Footer />
     </View>
   );
