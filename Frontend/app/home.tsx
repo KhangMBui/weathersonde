@@ -2,35 +2,37 @@ import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import SensorModal from "@/components/SensorModal";
-import MapView, {
-  PROVIDER_GOOGLE,
-  Marker,
-  AnimatedRegion,
-} from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
+import { useUnitConversion } from "@/hooks/useUnitConversion";
 
 export default function HomeScreen() {
   const mapRef = useRef<MapView | null>(null); // Map reference
-  const [errorMsg, setErrorMsg] = useState("");
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
 
   const [droneLocation, setDroneLocation] = useState({
     latitude: 0,
     longitude: 0,
   });
 
-  const [generalInfo, setGeneralInfo] = useState({
+  const [generalInfo, setGeneralInfo] = useState<{
+    date: string;
+    time: string;
+    altitude: number | null;
+    internalTemp: number | null;
+    internalRH: string;
+    internalPres: string;
+    airTemp: number | null;
+    weatherRH: string;
+  }>({
     date: "",
     time: "",
-    altitude: "",
-    internalTemp: "",
+    altitude: null,
+    internalTemp: null,
     internalRH: "",
     internalPres: "",
-    airTemp: "",
+    airTemp: null,
     weatherRH: "",
   });
 
@@ -41,13 +43,16 @@ export default function HomeScreen() {
     longitudeDelta: 0.0421,
   });
 
+  // const { ipAddress, error } = useLocalIPv4();
+  const { convertTemperature, convertDistance } = useUnitConversion();
+
   useEffect(() => {
     getDroneInfo();
   }, []);
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://192.168.56.1:8000/ws_data");
+      const response = await axios.get(`http://10.0.2.2:8000/ws_data`);
       const {
         Date: date,
         Time: time,
@@ -59,16 +64,21 @@ export default function HomeScreen() {
         Internal_Pres: internalPres,
         Weather: { Air_Temperature: airTemp, RH: weatherRH },
       } = response.data;
-      console.log("Drone location fetched: ", latitude, longitude);
+
+      // Convert values based on global units
+      const convertedAltitude = convertDistance(altitude);
+      const convertedInternalTemp = convertTemperature(internalTemp);
+      const convertedAirTemp = convertTemperature(airTemp);
+
       setDroneLocation({ latitude, longitude });
       setGeneralInfo({
         date,
         time,
-        altitude,
-        internalTemp,
+        altitude: parseFloat(convertedAltitude.toFixed(2)),
+        internalTemp: parseFloat(convertedInternalTemp.toFixed(2)),
         internalRH,
         internalPres,
-        airTemp,
+        airTemp: parseFloat(convertedAirTemp.toFixed(2)),
         weatherRH,
       });
       setMapRegion({
@@ -136,23 +146,18 @@ export default function HomeScreen() {
 
       <View style={styles.generalInfo}>
         <Text style={styles.infoText}>
-          Lat: {droneLocation.latitude.toFixed(4)}, Long:{" "}
-          {droneLocation.longitude.toFixed(4)}, Temp:{" "}
-          {parseFloat(generalInfo.airTemp).toFixed(2)}°C, Humidity:{" "}
-          {parseFloat(generalInfo.weatherRH).toFixed(2)}%, Alt:{" "}
-          {parseFloat(generalInfo.altitude).toFixed(1)}m
+          Date: {generalInfo.date}, Time: {generalInfo.time}
+          {"\n"}
+          Temp: {generalInfo.airTemp}, Humidity: {generalInfo.weatherRH}, Alt:{" "}
+          {generalInfo.altitude}
         </Text>
       </View>
 
-      <SensorModal
+      {/* <SensorModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-      />
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      /> */}
+      <Footer />
     </View>
   );
 }

@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "We need your location to show the map."
+        "NSLocationWhenInUseUsageDescription": "We need your location to show the map.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
       },
       "config": {
         "googleMapsApiKey": "AIzaSyCRbZ411KLzycj6LXtr6Gpk8AjUh_SaGFg"
@@ -26,7 +29,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": ["ACCESS_NETWORK_STATE", "INTERNET"]
     },
     "web": {
       "bundler": "metro",

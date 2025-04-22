@@ -1,19 +1,17 @@
+/**
+ * @jest-environment @shopify/react-native-skia/jestEnv.mjs
+ */
 import Footer from "@/components/footer";
-import { View, StyleSheet, Text } from "react-native";
-import { Stack } from "expo-router";
-import OptionHeader from "@/components/optionHeader";
-import SensorModal from "@/components/SensorModal";
+import { View, StyleSheet } from "react-native";
+// import SensorModal from "@/components/SensorModal";
 import axios from "axios";
 import { useEffect, useState } from "react";
-// import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Stack } from "expo-router";
+import LineGraph from "@/components/LineGraph";
+import OptionHeader from "@/components/optionHeader";
 
 export default function Analytics() {
-  // For testing purpose
-  const [selectedTab, setSelectedTab] = useState("Real-Time");
   const [message, setMessage] = useState("Loading...");
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<string | null>(null);
-
   const [generalInfo, setGeneralInfo] = useState({
     date: "",
     time: "",
@@ -23,15 +21,60 @@ export default function Analytics() {
     internalPres: "",
     airTemp: "",
     weatherRH: "",
+    inversionIntensity: "",
+    inversionHeight: "",
+    inversionRate: "",
+    totalSamples: "",
   });
+
+  // For constant data fetching on the historical page
+  const [historicalData, setHistoricalData] = useState<any[]>([]);
+
+  const [selectedTab, setSelectedTab] = useState("Altitude - Temperature");
 
   useEffect(() => {
-    getDroneInfo();
-  });
+    // Fetch data at regular intervals
+    const interval = setInterval(() => {
+      getDroneInfo();
+      getInversionData();
+    }, 10000); // Fetch every 2 seconds
 
+    return () => clearInterval(interval); // Cleanup on component unmount
+  }, []);
+
+  useEffect(() => {
+    // Append new historical data whenever generalInfo changes
+    if (generalInfo.date && generalInfo.time) {
+      const newEntry = {
+        date: generalInfo.date,
+        time: generalInfo.time,
+        altitude: generalInfo.altitude,
+        internalTemp: generalInfo.internalTemp,
+        internalRH: generalInfo.internalRH,
+        internalPres: generalInfo.internalPres,
+        airTemp: generalInfo.airTemp,
+        weatherRH: generalInfo.weatherRH,
+        inversionIntensity: generalInfo.inversionIntensity,
+        inversionHeight: generalInfo.inversionHeight,
+        inversionRate: generalInfo.inversionRate,
+      };
+
+      setHistoricalData((prevData) => {
+        // Check if the new entry is already in the historical data
+        if (
+          prevData.length > 0 &&
+          JSON.stringify(prevData[0]) === JSON.stringify(newEntry)
+        ) {
+          return prevData; // Avoid adding duplicate entries
+        }
+        const updatedData = [newEntry, ...prevData];
+        return updatedData.slice(0, 20); // Keep only the latest 20 entries
+      });
+    }
+  }, [generalInfo]);
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://192.168.56.1:8000/ws_data");
+      const response = await axios.get("http://10.0.2.2:8000/ws_data");
       const {
         Date: date,
         Time: time,
@@ -43,106 +86,71 @@ export default function Analytics() {
         Internal_Pres: internalPres,
         Weather: { Air_Temperature: airTemp, RH: weatherRH },
       } = response.data;
-      console.log("Drone location fetched: ", latitude, longitude);
-      setGeneralInfo({
+      // console.log("Drone location fetched: ", latitude, longitude);
+      const snapshot = {
         date,
         time,
+        latitude,
+        longitude,
         altitude,
         internalTemp,
         internalRH,
         internalPres,
         airTemp,
         weatherRH,
-      });
+      };
+
+      // Update live data
+      setGeneralInfo((prev) => ({
+        ...prev,
+        ...snapshot,
+      }));
+
+      // Add snapshot to the top of the history
+      // setHistoricalData((prev) => [snapshot, ...prev]);
     } catch (error) {
       setMessage("Failed to fetch data");
       console.error("Error fetching drone location:", error);
     }
   };
 
-  // const renderDataRow = (
-  //   icon: React.ReactNode,
-  //   label: string,
-  //   value: string
-  // ) => (
-  //   <View style={styles.dataRow}>
-  //     <View style={styles.iconLabel}>
-  //       {icon}
-  //       <Text style={styles.label}>{label}</Text>
-  //     </View>
-  //     <Text style={styles.value}>{value}</Text>
-  //   </View>
-  // );
+  const getInversionData = async () => {
+    try {
+      const response = await axios.get("http://10.0.2.2:8000/inversion");
+      const data = response.data;
+
+      const inversionData = {
+        inversionIntensity: data.inversion_intensity ?? NaN,
+        inversionHeight: data.inversion_height ?? NaN,
+        inversionRate: data.inversion_rate ?? NaN,
+        totalSamples: data.total_samples ?? 0,
+      };
+
+      // Update generalInfo with inversion data
+      setGeneralInfo((prev) => ({
+        ...prev,
+        ...inversionData,
+      }));
+    } catch (error) {
+      console.error("Error fetching inversion data:", error);
+    }
+  };
+
+  // const width = 256;
+  // const height = 256;
+  // const r = width * 0.33;
 
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-
-      {/* <OptionHeader /> */}
-      <OptionHeader selectedTab={selectedTab} onTabChange={setSelectedTab} />
-
-      {selectedTab === "Real-Time" ? (
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoTitle}>Real-Time Drone Data</Text>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>📅 Date:</Text>
-            <Text style={styles.value}>{generalInfo.date}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>🕒 Time:</Text>
-            <Text style={styles.value}>{generalInfo.time}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>⛰️ Altitude:</Text>
-            <Text style={styles.value}>{generalInfo.altitude}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>🌡️ Internal Temp:</Text>
-            <Text style={styles.value}>{generalInfo.internalTemp}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>💧 Internal RH:</Text>
-            <Text style={styles.value}>{generalInfo.internalRH}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>📊 Internal Pressure:</Text>
-            <Text style={styles.value}>{generalInfo.internalPres}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>🌤️ Air Temp:</Text>
-            <Text style={styles.value}>{generalInfo.airTemp}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>💦 Weather RH:</Text>
-            <Text style={styles.value}>{generalInfo.weatherRH}</Text>
-          </View>
-        </View>
-      ) : (
-        <View>
-          <Text style={{ fontSize: 18, margin: 10 }}>Historical Data</Text>
-          {/* Replace with actual historical content */}
-          <Text>This will be historical analytics.</Text>
-          <Text>{message}</Text>
-        </View>
-      )}
-
-      <SensorModal
-        isVisible={isModalVisible}
-        onClose={() => setModalVisible(false)}
+      {/* <Header /> */}
+      <OptionHeader
+        tabs={["Altitude - Temperature", "Altitude - Humidity"]}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
       />
-      <Footer
-        selectedButton={selectedButton}
-        setSelectedButton={setSelectedButton}
-        onHeatMapPress={() => setModalVisible(true)}
-      />
+      <LineGraph selectedTab={selectedTab} />
+      <Footer />
     </View>
   );
 }
@@ -151,39 +159,5 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  infoContainer: {
-    marginTop: 10,
-    padding: 10,
-  },
-  infoTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
-    color: "#333",
-  },
-  infoCard: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  label: {
-    fontSize: 16,
-    color: "#555",
-    fontWeight: "600",
-  },
-  value: {
-    fontSize: 16,
-    color: "#111",
   },
 });
