@@ -1,4 +1,4 @@
-import { useSettings } from "@/hooks/SettingsContext";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export const useUnitConversion = () => {
   const { temperatureUnit, distanceUnit } = useSettings(); // Access global units

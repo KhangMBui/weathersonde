@@ -11,15 +11,14 @@ import OptionHeader from "@/components/optionHeader";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUnitConversion } from "@/hooks/useUnitConversion";
-// import SensorModal from "@/components/SensorModal";
-// import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useHistoricalData } from "@/contexts/HistoricalDataContext";
 
 export default function Data() {
-  // For testing purpose
+  const { historicalData, setHistoricalData } = useHistoricalData();
+
   const [expandedItem, setExpandedItem] = useState<string | null>(null); // Track expanded item by unique identifier
   const [selectedTab, setSelectedTab] = useState("Real-Time");
-  const [message, setMessage] = useState("Loading...");
-  // const [isModalVisible, setModalVisible] = useState(false);
+
   const { convertTemperature, convertDistance } = useUnitConversion();
 
   const [generalInfo, setGeneralInfo] = useState<{
@@ -50,8 +49,8 @@ export default function Data() {
     totalSamples: "",
   });
 
-  // For constant data fetching on the historical page
-  const [historicalData, setHistoricalData] = useState<any[]>([]);
+  // // For constant data fetching on the historical page
+  // const [historicalData, setHistoricalData] = useState<any[]>([]);
 
   useEffect(() => {
     let isMounted = true; // To prevent state updates on unmounted components
@@ -82,11 +81,17 @@ export default function Data() {
       const newEntry = {
         date: generalInfo.date,
         time: generalInfo.time,
-        altitude: generalInfo.altitude,
-        internalTemp: generalInfo.internalTemp,
+        altitude: generalInfo.altitude
+          ? convertDistance(generalInfo.altitude) // Convert altitude
+          : null,
+        internalTemp: generalInfo.internalTemp
+          ? convertTemperature(generalInfo.internalTemp) // Convert internal temperature
+          : null,
         internalRH: generalInfo.internalRH,
         internalPres: generalInfo.internalPres,
-        airTemp: generalInfo.airTemp,
+        airTemp: generalInfo.airTemp
+          ? convertTemperature(generalInfo.airTemp) // Convert air temperature
+          : null,
         weatherRH: generalInfo.weatherRH,
         inversionIntensity: generalInfo.inversionIntensity,
         inversionHeight: generalInfo.inversionHeight,
@@ -151,7 +156,6 @@ export default function Data() {
       // Add snapshot to the top of the history
       // setHistoricalData((prev) => [snapshot, ...prev]);
     } catch (error) {
-      setMessage("Failed to fetch data");
       console.error("Error fetching drone location:", error);
     }
   };

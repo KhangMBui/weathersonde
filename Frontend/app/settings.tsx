@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-import { useSettings } from "@/hooks/SettingsContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import { Alert } from "react-native";
 
 export default function Settings() {
