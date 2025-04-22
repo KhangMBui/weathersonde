@@ -17,7 +17,7 @@ export default function Weather() {
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://172.29.208.1:8000/ws_data");
+      const response = await axios.get("http://192.168.56.1:8000/ws_data");
       const { latitude, longitude } = response.data;
       setDroneLocation({ latitude, longitude });
     } catch (error) {

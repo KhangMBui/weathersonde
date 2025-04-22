@@ -277,13 +277,14 @@ def get_grouped_records():
             process_records_by_height()  # Process records if not already grouped
         return {"grouped_records": grouped_records}
  
+import random
 @app.get("/records/height_and_temperature")
-def get_height_and_temperature(bin_size: int = 2):
+def get_height_and_temperature(bin_size: int = 1):
     """
     Endpoint to retrieve altitude bins with average Air_Temperature and RH.
     """
     with data_lock:
-        # # Generate random data for testing
+        # Generate random data for testing
         # random_records = [
         #     {
         #         "altitude": random.uniform(0, 100),  # Altitude between 0 and 100 meters

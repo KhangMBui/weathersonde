@@ -1,17 +1,32 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+interface DataPoint {
+  average_temperature: number;
+  altitude: number;
+}
+
 const useHeightAndTemperatureData = (binSize = 2) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://172.29.208.1:8000/records/height_and_temperature?bin_size=${binSize}`
+          `http://192.168.56.1:8000/records/height_and_temperature?bin_size=${binSize}`
         );
-        setData(response.data);
+
+        // Map the data to extract altitude and average_temperature
+        const parsedData = response.data.map((item: any) => {
+          const altitude = parseFloat(item.altitude_bin.split("-")[0]); // Extract lower bound of altitude
+          return {
+            average_temperature: item.average_temperature,
+            altitude,
+          };
+        });
+        console.log("parsed Data:", parsedData);
+        setData(parsedData);
       } catch (error) {
         console.error("Error fetching height and temperature data:", error);
       } finally {
