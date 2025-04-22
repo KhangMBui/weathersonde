@@ -112,7 +112,7 @@ export default function Data() {
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://192.168.56.1:8000/ws_data");
+      const response = await axios.get("http://10.0.2.2:8000/ws_data");
       const {
         Date: date,
         Time: time,
@@ -159,7 +159,7 @@ export default function Data() {
 
   const getInversionData = async () => {
     try {
-      const response = await axios.get("http://192.168.56.1:8000/inversion");
+      const response = await axios.get("http://10.0.2.2:8000/inversion");
       const data = response.data;
 
       const inversionData = {

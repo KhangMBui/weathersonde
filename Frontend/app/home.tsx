@@ -3,11 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 // import SensorModal from "@/components/SensorModal";
-import MapView, {
-  PROVIDER_GOOGLE,
-  Marker,
-  AnimatedRegion,
-} from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
@@ -57,13 +53,8 @@ export default function HomeScreen() {
   }, []);
 
   const getDroneInfo = async () => {
-    // if (!ipAddress) {
-    //   console.error("Unable to discover server IP.");
-    //   return;
-    // }
-    // console.log(ipAddress);
     try {
-      const response = await axios.get(`http://192.168.56.1:8000/ws_data`);
+      const response = await axios.get(`http://10.0.2.2:8000/ws_data`);
       const {
         Date: date,
         Time: time,
