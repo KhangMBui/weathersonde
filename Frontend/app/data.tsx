@@ -225,7 +225,7 @@ export default function Data() {
           <View style={styles.infoCardGroup}>
             <Text style={styles.label}>🌪️ Inversion Data: </Text>
             <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}🔥 Inversion Intensity: </Text>
+              <Text style={styles.label}>{"\t"}🔥 Inversion intensity: </Text>
               <Text style={styles.value}>
                 {parseFloat(generalInfo.inversionIntensity).toFixed(3)}
               </Text>

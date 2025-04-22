@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -16,6 +16,7 @@ import {
   matchFont,
 } from "@shopify/react-native-skia";
 import useHeightAndTemperatureData from "@/hooks/useHeightAndTemperatureData";
+import axios from "axios";
 
 const fontFamily = Platform.select({ ios: "helvetia", default: "sans-serif" });
 const font = matchFont({ fontFamily, fontSize: 14 });
@@ -39,6 +40,59 @@ const generateTicks = (min: number, max: number, desiredStepSize: number) => {
 
 const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
   const { data, loading } = useHeightAndTemperatureData();
+  const [generalInfo, setGeneralInfo] = useState<{
+    inversionIntensity: string;
+    inversionHeight: string;
+    inversionRate: string;
+  }>({
+    inversionIntensity: "",
+    inversionHeight: "",
+    inversionRate: "",
+  });
+
+  const getInversionData = async () => {
+    try {
+      const response = await axios.get("http://10.0.2.2:8000/inversion");
+      const data = response.data;
+
+      const inversionData = {
+        inversionIntensity: data.inversion_intensity ?? NaN,
+        inversionHeight: data.inversion_height ?? NaN,
+        inversionRate: data.inversion_rate ?? NaN,
+        totalSamples: data.total_samples ?? 0,
+      };
+
+      // Update generalInfo with inversion data
+      setGeneralInfo((prev) => ({
+        ...prev,
+        ...inversionData,
+      }));
+    } catch (error) {
+      console.error("Error fetching inversion data:", error);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true; // To prevent state updates on unmounted components
+
+    const fetchData = async () => {
+      try {
+        await getInversionData();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+
+      if (isMounted) {
+        setTimeout(fetchData, 3000); // Schedule the next fetch after 3 seconds
+      }
+    };
+
+    fetchData(); // Start the first fetch
+
+    return () => {
+      isMounted = false; // Cleanup on component unmount
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -105,8 +159,31 @@ const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
 
   return (
     <>
+      <View style={styles.inversionContainer}>
+        <View style={styles.infoCardGroup}>
+          <Text style={styles.titleLabel}>🌪️ Inversion Data: </Text>
+          <View style={styles.infoGroup}>
+            <Text style={styles.label}>{"\t"}🔥 Inversion intensity: </Text>
+            <Text style={styles.value}>
+              {parseFloat(generalInfo.inversionIntensity).toFixed(3)}
+            </Text>
+          </View>
+          <View style={styles.infoGroup}>
+            <Text style={styles.label}>{"\t"}📏 Inversion height:</Text>
+            <Text style={styles.value}>
+              {parseFloat(generalInfo.inversionHeight).toFixed(3)}
+            </Text>
+          </View>
+          <View style={styles.infoGroup}>
+            <Text style={styles.label}>{"\t"}📉 Inversion rate:</Text>
+            <Text style={styles.value}>
+              {parseFloat(generalInfo.inversionRate).toFixed(3)}
+            </Text>
+          </View>
+        </View>
+      </View>
       <Text style={styles.title}>Inversion Graph</Text>
-      <View style={styles.container}>
+      <View style={styles.graphContainer}>
         <Canvas style={styles.canvas}>
           {/* Draw x-axis */}
           <Line
@@ -225,10 +302,10 @@ const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  graphContainer: {
     flex: 1,
     // justifyContent: "center",
-    marginTop: 100,
+    // marginTop: 100,
     alignItems: "center",
     backgroundColor: "#fff",
     padding: 20,
@@ -270,6 +347,55 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "#A20025",
+  },
+
+  inversionContainer: {
+    marginTop: 10,
+    padding: 10,
+  },
+  infoCardGroup: {
+    marginTop: 2,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    paddingVertical: 0,
+    paddingHorizontal: 70,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  titleLabel: {
+    fontSize: 20,
+    color: "#333",
+    fontWeight: "bold",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  infoGroup: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center", // Align items vertically
+    marginBottom: 10, // Add spacing between rows
+    marginTop: 30,
+    gap: 5,
+  },
+  label: {
+    fontSize: 16,
+    color: "#555", // Medium gray for labels
+    fontWeight: "600",
+    paddingRight: 20, // Add space between label and value
+    marginLeft: -50,
+  },
+  value: {
+    marginTop: 5,
+    fontSize: 14,
+    color: "#007BFF", // Blue for emphasis
+    fontWeight: "bold",
+    marginRight: -45,
   },
 });
 
