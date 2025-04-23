@@ -28,29 +28,41 @@ export default function KnowledgeModal({
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Knowledge Center</Text>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Text style={styles.infoLabel}>🌪️ Inversion Information</Text>
-            <View>
-              <View style={styles.infoGroup}>
-                <Text style={styles.label}>🔥 Intensity:</Text>
-                <Text style={styles.value}>
-                  Explanation about intensity. This can be one or multiple lines
-                  of text.
-                </Text>
-              </View>
-              <View style={styles.infoGroup}>
-                <Text style={styles.label}>📏 Height:</Text>
-                <Text style={styles.value}>
-                  Explanation about height. This can be one or multiple lines of
-                  text.
-                </Text>
-              </View>
-              <View style={styles.infoGroup}>
-                <Text style={styles.label}>📉 Rate:</Text>
-                <Text style={styles.value}>
-                  Explanation about rate. This can be one or multiple lines of
-                  text.
-                </Text>
-              </View>
+            {/* Inversion Strength */}
+            <View style={styles.infoGroup}>
+              <Text style={styles.label}>🌡️ Inversion Strength</Text>
+              <Text style={styles.unit}>Unit: °C or °C/100 meters</Text>
+              <Text style={styles.value}>
+                The total temperature increase (or temperature difference)
+                between two vertical points during an inversion. It measures how
+                much warmer the air is higher above the ground compared to near
+                the surface.
+              </Text>
+            </View>
+
+            {/* Inversion Intensity */}
+            <View style={styles.infoGroup}>
+              <Text style={styles.label}>🔥 Inversion Intensity</Text>
+              <Text style={styles.unit}>Unit: °C</Text>
+              <Text style={styles.value}>
+                The magnitude of temperature difference at a given time.
+                Stronger intensity means a larger temperature gap between ground
+                level and higher elevations.
+              </Text>
+            </View>
+
+            {/* Inversion Rate */}
+            <View style={styles.infoGroup}>
+              <Text style={styles.label}>📏 Inversion Rate</Text>
+              <Text style={styles.unit}>
+                Unit: °C per 10 meters or °C/meter
+              </Text>
+              <Text style={styles.value}>
+                How quickly temperature increases with height during an
+                inversion. It shows the steepness of the temperature gradient; a
+                higher rate indicates a sharper temperature increase per unit of
+                height.
+              </Text>
             </View>
           </ScrollView>
           <TouchableOpacity
@@ -69,15 +81,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
   },
   modalContent: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
     width: "90%",
-    minHeight: "60%",
-    maxHeight: "75%",
+    maxHeight: "80%", // Prevent overflow
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -88,7 +99,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#A20025", // WSU Crimson for a bold look
+    color: "#A20025", // WSU Crimson
     marginBottom: 15,
     textAlign: "center",
   },
@@ -97,21 +108,27 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   infoGroup: {
-    flexDirection: "column", // Stack label and value vertically
-    marginBottom: 10,
+    marginBottom: 20,
+    padding: 20,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   label: {
-    fontSize: 16,
-    color: "#555",
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 5,
   },
-  infoLabel: {
-    fontSize: 16,
-    color: "#555",
+  unit: {
+    fontSize: 14,
     fontWeight: "600",
+    color: "#555",
     marginBottom: 5,
-    alignSelf: "center",
   },
   value: {
     fontSize: 16,
