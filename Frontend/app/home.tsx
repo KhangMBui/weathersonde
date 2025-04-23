@@ -7,10 +7,11 @@ import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useUnitConversion } from "@/hooks/useUnitConversion";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export default function HomeScreen() {
   const mapRef = useRef<MapView | null>(null); // Map reference
-
+  const { temperatureUnit, distanceUnit } = useSettings();
   const [droneLocation, setDroneLocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -148,8 +149,9 @@ export default function HomeScreen() {
         <Text style={styles.infoText}>
           Date: {generalInfo.date}, Time: {generalInfo.time}
           {"\n"}
-          Temp: {generalInfo.airTemp}, Humidity: {generalInfo.weatherRH}, Alt:{" "}
-          {generalInfo.altitude}
+          Temp: {generalInfo.airTemp} {temperatureUnit}, RH:{" "}
+          {generalInfo.weatherRH}
+          {"%"}, Alt: {generalInfo.altitude} {distanceUnit}
         </Text>
       </View>
 
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
   /* Relocate button */
   button: {
     position: "absolute",
-    top: 110,
+    top: 130,
     // left: "110%",
     right: "-25%",
     transform: [{ translateX: -100 }],

@@ -29,7 +29,7 @@ export default function OptionHeader({
 const styles = StyleSheet.create({
   tabContainer: {
     height: 100,
-    backgroundColor: "#A20025",
+    backgroundColor: "#A60F2D",
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",

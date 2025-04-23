@@ -12,6 +12,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUnitConversion } from "@/hooks/useUnitConversion";
 import { useHistoricalData } from "@/contexts/HistoricalDataContext";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export default function Data() {
   const { historicalData, setHistoricalData } = useHistoricalData();
@@ -19,6 +20,7 @@ export default function Data() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null); // Track expanded item by unique identifier
   const [selectedTab, setSelectedTab] = useState("Real-Time");
 
+  const { temperatureUnit, distanceUnit } = useSettings();
   const { convertTemperature, convertDistance } = useUnitConversion();
 
   const [generalInfo, setGeneralInfo] = useState<{
@@ -183,7 +185,7 @@ export default function Data() {
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* <OptionHeader /> */}
@@ -192,133 +194,157 @@ export default function Data() {
         selectedTab={selectedTab}
         onTabChange={setSelectedTab}
       />
+      <View style={styles.mainContainer}>
+        {selectedTab === "Real-Time" ? (
+          <View style={styles.infoContainer}>
+            {/* <Text style={styles.infoTitle}>WeatherSonde Real-Time</Text> */}
+            <View style={styles.infoCard}>
+              <Text style={styles.label}>🔢 Number of record:</Text>
+              <Text style={styles.value}>{generalInfo.totalSamples}</Text>
+            </View>
 
-      {selectedTab === "Real-Time" ? (
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoTitle}>Real-Time Drone Data</Text>
+            <View style={styles.infoCard}>
+              <Text style={styles.label}>📅 Date:</Text>
+              <Text style={styles.value}>{generalInfo.date}</Text>
+            </View>
 
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>🔢 Number of data record:</Text>
-            <Text style={styles.value}>{generalInfo.totalSamples}</Text>
-          </View>
+            <View style={styles.infoCard}>
+              <Text style={styles.label}>🕒 Time:</Text>
+              <Text style={styles.value}>{generalInfo.time}</Text>
+            </View>
 
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>📅 Date:</Text>
-            <Text style={styles.value}>{generalInfo.date}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>🕒 Time:</Text>
-            <Text style={styles.value}>{generalInfo.time}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>⛰️ Altitude:</Text>
-            <Text style={styles.value}>{generalInfo.altitude}</Text>
-          </View>
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>🌤️ Air Temp:</Text>
-            <Text style={styles.value}>{generalInfo.airTemp}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.label}>💦 Weather RH:</Text>
-            <Text style={styles.value}>{generalInfo.weatherRH}</Text>
-          </View>
-
-          <View style={styles.infoCardGroup}>
-            <Text style={styles.label}>🌪️ Inversion Data: </Text>
-            <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}🔥 Inversion intensity: </Text>
+            <View style={styles.infoCard}>
+              <Text style={styles.label}>⛰️ Altitude:</Text>
               <Text style={styles.value}>
-                {parseFloat(generalInfo.inversionIntensity).toFixed(3)}
+                {generalInfo.altitude} {distanceUnit}
               </Text>
             </View>
-            <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}📏 Inversion height:</Text>
+            <View style={styles.infoCard}>
+              <Text style={styles.label}>🌤️ Air Temp:</Text>
               <Text style={styles.value}>
-                {parseFloat(generalInfo.inversionHeight).toFixed(3)}
+                {generalInfo.airTemp !== null
+                  ? parseFloat(generalInfo.airTemp.toString()).toFixed(2)
+                  : "N/A"}{" "}
+                {temperatureUnit}
               </Text>
             </View>
-            <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}📉 Inversion rate:</Text>
-              <Text style={styles.value}>
-                {parseFloat(generalInfo.inversionRate).toFixed(3)}
-              </Text>
+
+            <View style={styles.infoCard}>
+              <Text style={styles.label}>💦 Humidity:</Text>
+              <Text style={styles.value}>{generalInfo.weatherRH} %</Text>
             </View>
-          </View>
-          <View style={styles.infoCardGroup}>
-            <Text style={styles.label}>🚁 Internal Drone Data: </Text>
-            <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}🌡️ Temp: </Text>
-              <Text style={styles.value}>{generalInfo.internalTemp}</Text>
-            </View>
-            <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}💧 RH:</Text>
-              <Text style={styles.value}>{generalInfo.internalRH}</Text>
-            </View>
-            <View style={styles.infoGroup}>
-              <Text style={styles.label}>{"\t"}📊 Pressure:</Text>
-              <Text style={styles.value}>{generalInfo.internalPres}</Text>
-            </View>
-          </View>
-        </View>
-      ) : (
-        <ScrollView
-          style={{ padding: 10 }}
-          contentContainerStyle={{ paddingBottom: 80 }}
-        >
-          <Text style={styles.infoTitle}>Historical Drone Data</Text>
-          {historicalData.map((item, index) => {
-            const uniqueId = `${item.date}-${item.time}`; // Create a unique identifier for each item
-            return (
-              <View key={uniqueId} style={styles.infoCard}>
-                <TouchableOpacity
-                  onPress={() =>
-                    setExpandedItem(expandedItem === uniqueId ? null : uniqueId)
-                  }
-                >
-                  <Text style={styles.value}>
-                    📅 Date: {item.date} 🕒 Time: {item.time}
-                    {"\n"}
-                    ⛰️ Altitude: {item.altitude}
-                    {expandedItem === uniqueId && (
-                      <>
-                        {"\n"}
-                        🌡️ Internal Temp: {item.internalTemp}
-                        {"\n"}
-                        💧 Internal RH: {item.internalRH}
-                        {"\n"}
-                        📊 Internal Pressure: {item.internalPres}
-                        {"\n"}
-                        🌤️ Air Temp: {item.airTemp}
-                        {"\n"}
-                        💦 Weather RH: {item.weatherRH}
-                        {"\n"}
-                        🔥 Inversion Intensity: {item.inversionIntensity ?? NaN}
-                        {"\n"}
-                        📏 Inversion Height: {item.inversionHeight ?? NaN}
-                        {"\n"}
-                        📉 Inversion Rate: {item.inversionRate ?? NaN}
-                      </>
-                    )}
-                  </Text>
-                  <Text style={styles.expandText}>
-                    {expandedItem === uniqueId ? "Show Less ▲" : "Show More ▼"}
-                  </Text>
-                </TouchableOpacity>
+
+            <View style={styles.infoCardGroup}>
+              <Text style={styles.label}>🌪️ Inversion Data: </Text>
+              <View style={styles.infoGroup}>
+                <Text style={styles.label}>{"\t"}🔥 Intensity: </Text>
+                <Text style={styles.value}>
+                  {parseFloat(generalInfo.inversionIntensity).toFixed(3)} {"°C"}
+                </Text>
               </View>
-            );
-          })}
-        </ScrollView>
-      )}
-      {/* 
+              <View style={styles.infoGroup}>
+                <Text style={styles.label}>{"\t"}📏 Height:</Text>
+                <Text style={styles.value}>
+                  {parseFloat(generalInfo.inversionHeight).toFixed(3)} {"m"}
+                </Text>
+              </View>
+              <View style={styles.infoGroup}>
+                <Text style={styles.label}>{"\t"}📉 Rate:</Text>
+                <Text style={styles.value}>
+                  {parseFloat(generalInfo.inversionRate).toFixed(3)} {"°C/m"}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.infoCardGroup}>
+              <Text style={styles.label}>🚁 WeatherSonde internal data: </Text>
+              <View style={styles.infoGroup}>
+                <Text style={styles.label}>{"\t"}🌡️ Temp: </Text>
+                <Text style={styles.value}>
+                  {generalInfo.internalTemp !== null
+                    ? parseFloat(generalInfo.internalTemp.toString()).toFixed(2)
+                    : "N/A"}{" "}
+                  {temperatureUnit}
+                </Text>
+              </View>
+              <View style={styles.infoGroup}>
+                <Text style={styles.label}>{"\t"}💧 RH:</Text>
+                <Text style={styles.value}>{generalInfo.internalRH} %</Text>
+              </View>
+              <View style={styles.infoGroup}>
+                <Text style={styles.label}>{"\t"}📊 Pressure:</Text>
+                <Text style={styles.value}>{generalInfo.internalPres}</Text>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <ScrollView
+            style={{ padding: 10 }}
+            contentContainerStyle={{ paddingBottom: 80 }}
+          >
+            {/* <Text style={styles.infoTitle}>WeatherSonde Historical</Text> */}
+            {historicalData.map((item, index) => {
+              const uniqueId = `${item.date}-${item.time}`; // Create a unique identifier for each item
+              return (
+                <View key={uniqueId} style={styles.infoCard}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      setExpandedItem(
+                        expandedItem === uniqueId ? null : uniqueId
+                      )
+                    }
+                  >
+                    <Text style={styles.value}>
+                      📅 Date: {item.date} 🕒 Time: {item.time}
+                      {"\n"}
+                      ⛰️ Altitude: {item.altitude} {distanceUnit}
+                      {expandedItem === uniqueId && (
+                        <>
+                          {"\n"}
+                          🌡️ Internal Temp: {item.internalTemp}{" "}
+                          {temperatureUnit}
+                          {"\n"}
+                          💧 Internal RH: {item.internalRH} %{"\n"}
+                          📊 Internal Pressure: {item.internalPres}
+                          {"\n"}
+                          🌤️ Air Temp: {item.airTemp} {temperatureUnit}
+                          {"\n"}
+                          💦 RH: {item.weatherRH} %{"\n"}
+                          🔥 Inversion Intensity:{" "}
+                          {parseFloat(item.inversionIntensity).toFixed(2) ??
+                            NaN}{" "}
+                          {"°C"}
+                          {"\n"}
+                          📏 Inversion Height:{" "}
+                          {parseFloat(item.inversionHeight).toFixed(2) ??
+                            NaN}{" "}
+                          {"m"}
+                          {"\n"}
+                          📉 Inversion Rate:{" "}
+                          {parseFloat(item.inversionRate).toFixed(2) ??
+                            NaN}{" "}
+                          {"°C/m"}
+                        </>
+                      )}
+                    </Text>
+                    <Text style={styles.expandText}>
+                      {expandedItem === uniqueId
+                        ? "Show Less ▲"
+                        : "Show More ▼"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </ScrollView>
+        )}
+        {/* 
       <SensorModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
       /> */}
-      <Footer />
-    </View>
+        <Footer />
+      </View>
+    </>
   );
 }
 
@@ -328,16 +354,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   infoContainer: {
-    marginTop: 10,
+    marginTop: 50,
     padding: 10,
   },
-  infoTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
-    color: "#333",
-  },
+  // infoTitle: {
+  //   fontSize: 20,
+  //   fontWeight: "bold",
+  //   marginBottom: 15,
+  //   textAlign: "center",
+  //   color: "#333",
+  // },
   infoCard: {
     flexDirection: "row",
     justifyContent: "space-between",

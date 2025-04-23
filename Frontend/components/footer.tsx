@@ -52,7 +52,7 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
   footerContainer: {
-    backgroundColor: "#A20025",
+    backgroundColor: "#A60F2D",
     width: "100%",
     height: 80,
     flexDirection: "row",

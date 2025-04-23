@@ -14,8 +14,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [temperatureUnit, setTemperatureUnit] = useState("°F");
-  const [distanceUnit, setDistanceUnit] = useState("ft");
+  const [temperatureUnit, setTemperatureUnit] = useState("°C");
+  const [distanceUnit, setDistanceUnit] = useState("m");
 
   return (
     <SettingsContext.Provider

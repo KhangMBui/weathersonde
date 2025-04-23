@@ -11,7 +11,6 @@ import LineGraph from "@/components/LineGraph";
 import OptionHeader from "@/components/optionHeader";
 
 export default function Analytics() {
-  const [message, setMessage] = useState("Loading...");
   const [generalInfo, setGeneralInfo] = useState({
     date: "",
     time: "",
@@ -109,7 +108,6 @@ export default function Analytics() {
       // Add snapshot to the top of the history
       // setHistoricalData((prev) => [snapshot, ...prev]);
     } catch (error) {
-      setMessage("Failed to fetch data");
       console.error("Error fetching drone location:", error);
     }
   };
@@ -135,10 +133,6 @@ export default function Analytics() {
       console.error("Error fetching inversion data:", error);
     }
   };
-
-  // const width = 256;
-  // const height = 256;
-  // const r = width * 0.33;
 
   return (
     <View style={styles.mainContainer}>
