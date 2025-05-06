@@ -2,7 +2,8 @@
   "cli": {
     "version": ">= 16.4.0",
     "appVersionSource": "remote",
-    "requireCommit": true
+    "requireCommit": true,
+    "workingDirectory": "frontend"
   },
   "build": {
     "development": {
@@ -23,9 +24,6 @@
       "android": {
         "buildType": "apk"
       }
-    },
-    "cli": {
-      "workingDirectory": "frontend"
     }
   },
   "submit": {
