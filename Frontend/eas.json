@@ -11,6 +11,7 @@
       "channel": "development"
     },
     "preview": {
+      "developmentClient": true,
       "android": {
         "buildType": "apk"
       },
