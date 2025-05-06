@@ -7,6 +7,7 @@ import uvicorn
 import time
 from threading import Lock
 from typing import Dict, List, Optional
+import serial.tools.list_ports
  
 app = FastAPI()
  
@@ -68,11 +69,31 @@ def clean_sensor_value(val):
         elif 'V' in val:
             return float(val.replace('V', ''))
     return val
+
+def find_usb_port():
+    """
+    Dynamically find the USB port connected to the device.
+    Returns the port name if found, otherwise None.
+    """
+    ports = serial.tools.list_ports.comports()
+    for port in ports:
+        # Check for specific criteria to identify the correct port
+        if "USB" in port.description or "Serial" in port.description:
+            print(f"Found USB device: {port.device} ({port.description})")
+            return port.device  # Return the port name (e.g., 'COM5' or '/dev/ttyUSB0')
+    return None  # No matching port found 
  
 def read_usb_data():
     global latest_data, historical_records, highest_record, lowest_record
     try:
-        ser = serial.Serial('COM5', baudrate=57600, timeout=1)
+        
+        # Dynamically find the USB port
+        usb_port = find_usb_port()
+        if not usb_port:
+            print("No USB device found. Please connect the device.")
+            return
+        
+        ser = serial.Serial(usb_port, baudrate=57600, timeout=1)
         ser.flushInput()
        
         while True:
@@ -304,36 +325,36 @@ def get_height_and_temperature(bin_size: int = 1):
         #     {"altitude": 5.5, "temperature": 24.8, "humidity": 50},
         #     {"altitude": 6.5, "temperature": 25.2, "humidity": 51},
         #     {"altitude": 7.5, "temperature": 24.7, "humidity": 52},
-        # ]
+        # # ]
         # predefined_records = [
-        #     {"altitude": 0.5, "temperature": 17.3, "humidity": 45},
-        #     {"altitude": 1.5, "temperature": 17.6, "humidity": 46},
-        #     {"altitude": 2.5, "temperature": 17.4, "humidity": 47},
-        #     {"altitude": 3.5, "temperature": 17.9, "humidity": 48},
-        #     {"altitude": 4.5, "temperature": 18.1, "humidity": 49},
-        #     {"altitude": 5.5, "temperature": 18.8, "humidity": 50},
-        #     {"altitude": 6.5, "temperature": 18.2, "humidity": 51},
-        #     {"altitude": 7.5, "temperature": 18.7, "humidity": 52},
-        #     {"altitude": 9.5, "temperature": 19.3, "humidity": 45},
-        #     {"altitude": 10.5, "temperature": 19.6, "humidity": 46},
-        #     {"altitude": 11.5, "temperature": 19.4, "humidity": 47},
-        #     {"altitude": 12.5, "temperature": 19.9, "humidity": 48},
-        #     {"altitude": 14.5, "temperature": 20.1, "humidity": 49},
-        #     {"altitude": 15.5, "temperature": 20.8, "humidity": 50},
-        #     {"altitude": 16.5, "temperature": 21.2, "humidity": 51},
-        #     {"altitude": 17.5, "temperature": 21.7, "humidity": 52},
-        #     {"altitude": 18.5, "temperature": 21.6, "humidity": 46},
-        #     {"altitude": 19.5, "temperature": 22.4, "humidity": 47},
-        #     {"altitude": 20.5, "temperature": 22.9, "humidity": 48},
-        #     {"altitude": 21.5, "temperature": 23.1, "humidity": 49},
-        #     {"altitude": 22.5, "temperature": 23.8, "humidity": 50},
-        #     {"altitude": 23.5, "temperature": 23.2, "humidity": 51},
-        #     {"altitude": 24.5, "temperature": 23.7, "humidity": 52},
-        #     {"altitude": 25.5, "temperature": 24.5, "humidity": 48},
-        #     {"altitude": 26.5, "temperature": 24.7, "humidity": 49},
-        #     {"altitude": 27.5, "temperature": 25.0, "humidity": 50},
-        #     {"altitude": 28.5, "temperature": 25.2, "humidity": 51},
-        #     {"altitude": 29.5, "temperature": 25.7, "humidity": 52},
+        #     {"altitude": 0.5, "temperature": 17.3, "humidity": 85},
+        #     {"altitude": 1.5, "temperature": 17.6, "humidity": 83},
+        #     {"altitude": 2.5, "temperature": 17.4, "humidity": 81},
+        #     {"altitude": 3.5, "temperature": 17.9, "humidity": 79},
+        #     {"altitude": 4.5, "temperature": 18.1, "humidity": 77},
+        #     {"altitude": 5.5, "temperature": 18.8, "humidity": 75},
+        #     {"altitude": 6.5, "temperature": 18.2, "humidity": 73},
+        #     {"altitude": 7.5, "temperature": 18.7, "humidity": 71},
+        #     {"altitude": 9.5, "temperature": 19.3, "humidity": 69},
+        #     {"altitude": 10.5, "temperature": 19.6, "humidity": 67},
+        #     {"altitude": 11.5, "temperature": 19.4, "humidity": 65},
+        #     {"altitude": 12.5, "temperature": 19.9, "humidity": 63},
+        #     {"altitude": 14.5, "temperature": 20.1, "humidity": 61},
+        #     {"altitude": 15.5, "temperature": 20.8, "humidity": 59},
+        #     {"altitude": 16.5, "temperature": 21.2, "humidity": 57},
+        #     {"altitude": 17.5, "temperature": 21.7, "humidity": 55},
+        #     {"altitude": 18.5, "temperature": 21.6, "humidity": 53},
+        #     {"altitude": 19.5, "temperature": 22.4, "humidity": 51},
+        #     {"altitude": 20.5, "temperature": 22.9, "humidity": 49},
+        #     {"altitude": 21.5, "temperature": 23.1, "humidity": 47},
+        #     {"altitude": 22.5, "temperature": 23.8, "humidity": 45},
+        #     {"altitude": 23.5, "temperature": 23.2, "humidity": 43},
+        #     {"altitude": 24.5, "temperature": 23.7, "humidity": 41},
+        #     {"altitude": 25.5, "temperature": 24.5, "humidity": 39},
+        #     {"altitude": 26.5, "temperature": 24.7, "humidity": 37},
+        #     {"altitude": 27.5, "temperature": 25.0, "humidity": 35},
+        #     {"altitude": 28.5, "temperature": 25.2, "humidity": 33},
+        #     {"altitude": 29.5, "temperature": 25.7, "humidity": 31},
         # ]
         altitude_bins = {}
 
