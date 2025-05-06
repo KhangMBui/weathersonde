@@ -30,7 +30,13 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["ACCESS_NETWORK_STATE", "INTERNET"]
+      "permissions": [
+        "ACCESS_NETWORK_STATE",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "INTERNET"
+      ],
+      "package": "com.khangmbui.weathersonde"
     },
     "web": {
       "bundler": "metro",
@@ -51,6 +57,20 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "37858f5e-dee9-496d-97bd-eaf939b83ff1"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/37858f5e-dee9-496d-97bd-eaf939b83ff1"
     }
   }
 }
