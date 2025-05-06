@@ -25,7 +25,6 @@
     "@react-navigation/native": "^7.0.14",
     "@shopify/react-native-skia": "1.5.0",
     "axios": "^1.8.4",
-    "directory": "^0.1.0",
     "expo": "~52.0.46",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.7",
@@ -42,7 +41,6 @@
     "expo-updates": "~0.27.4",
     "expo-web-browser": "~14.0.2",
     "openmeteo": "^1.2.0",
-    "os": "^0.1.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.9",
@@ -52,8 +50,6 @@
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-paper": "^5.13.1",
     "react-native-reanimated": "~3.16.1",
-    "react-native-sweet-alert": "^3.5.0",
-    "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5"
   },
@@ -66,6 +62,13 @@
     "jest-expo": "~52.0.6",
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3"
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    }
   },
   "private": true
 }
