@@ -2,8 +2,7 @@
   "cli": {
     "version": ">= 16.4.0",
     "appVersionSource": "remote",
-    "requireCommit": true,
-    "workingDirectory": "frontend"
+    "requireCommit": true
   },
   "build": {
     "development": {
