@@ -17,7 +17,7 @@ export default function Weather() {
 
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://10.0.2.2:8000/ws_data");
+      const response = await axios.get("http://10.0.2.246:8000/ws_data");
       const { latitude, longitude } = response.data;
       setDroneLocation({ latitude, longitude });
     } catch (error) {
@@ -119,7 +119,7 @@ export default function Weather() {
   };
 
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
       <Text style={styles.title}>Weather Information</Text>
@@ -206,7 +206,7 @@ export default function Weather() {
         )}
         <Footer />
       </View>
-    </>
+    </View>
   );
 }
 
@@ -217,6 +217,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   title: {
+    backgroundColor: "#fff",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",

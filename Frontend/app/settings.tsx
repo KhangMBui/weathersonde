@@ -132,6 +132,7 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   mainContainer: {
+    backgroundColor: "#fff",
     flex: 1,
     padding: 20,
     paddingTop: 0,
@@ -143,6 +144,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   settingsTitle: {
+    backgroundColor: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 15,

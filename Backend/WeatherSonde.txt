@@ -21,3 +21,26 @@
     }
   }
 }
+latest_data = {
+    "WS_Node": {
+        "WS_ID": "",
+        "SNR": "",
+        "Bat_Volt": "",
+        "Bat_SOC": "",
+        "DC_CHG": ""
+    },
+    "WS_Data": {
+        "Date": "",
+        "Time": "",
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "altitude": "",
+        "Internal_Temp": "",
+        "Internal_RH": "",
+        "Internal_Pres": "",
+        "Weather": {
+            "Air_Temperature": "",
+            "RH": ""
+        }
+    }
+}

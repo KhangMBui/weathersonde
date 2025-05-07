@@ -52,7 +52,7 @@ const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
 
   const getInversionData = async () => {
     try {
-      const response = await axios.get("http://10.0.2.2:8000/inversion");
+      const response = await axios.get("http://10.0.2.246:8000/inversion");
       const data = response.data;
 
       const inversionData = {
@@ -345,7 +345,8 @@ const styles = StyleSheet.create({
     // marginTop: 100,
     alignItems: "center",
     backgroundColor: "#fff",
-    padding: 20,
+    // padding: 20,
+    marginTop: 0,
   },
   canvas: {
     width: 400,
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
     alignSelf: "center",
-    marginTop: 10,
+    marginTop: -3,
   },
   loadingContainer: {
     flex: 1,

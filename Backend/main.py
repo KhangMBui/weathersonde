@@ -26,24 +26,24 @@ data_lock = Lock()
 # Initialize data structure
 latest_data = {
     "WS_Node": {
-        "WS_ID": "",
-        "SNR": "",
-        "Bat_Volt": "",
-        "Bat_SOC": "",
-        "DC_CHG": ""
+        "WS_ID": "ws0001",
+        "SNR": "100dbm",
+        "Bat_Volt": "4.1V",
+        "Bat_SOC": "89%",
+        "DC_CHG": "CHG / NA"
     },
     "WS_Data": {
-        "Date": "",
-        "Time": "",
-        "latitude": 0.0,
-        "longitude": 0.0,
-        "altitude": "",
-        "Internal_Temp": "",
-        "Internal_RH": "",
-        "Internal_Pres": "",
+        "Date": "10/31/2024",
+        "Time": "14:40:49",
+        "latitude": 46.911334,
+        "longitude": -119.742122,
+        "altitude": "15.3 m",
+        "Internal_Temp": "25 °C",
+        "Internal_RH": "34%",
+        "Internal_Pres": "7 kPa",
         "Weather": {
-            "Air_Temperature": "",
-            "RH": ""
+        "Air_Temperature": "25 °C",
+        "RH": "45%"
         }
     }
 }
@@ -316,49 +316,39 @@ def get_height_and_temperature(bin_size: int = 1):
         #     for _ in range(100)  # Generate 100 random records
         # ]
         # Dictionary to store altitude bins
-        # predefined_records = [
-        #     {"altitude": 0.5, "temperature": 24.3, "humidity": 45},
-        #     {"altitude": 1.5, "temperature": 24.6, "humidity": 46},
-        #     {"altitude": 2.5, "temperature": 24.4, "humidity": 47},
-        #     {"altitude": 3.5, "temperature": 24.9, "humidity": 48},
-        #     {"altitude": 4.5, "temperature": 25.1, "humidity": 49},
-        #     {"altitude": 5.5, "temperature": 24.8, "humidity": 50},
-        #     {"altitude": 6.5, "temperature": 25.2, "humidity": 51},
-        #     {"altitude": 7.5, "temperature": 24.7, "humidity": 52},
-        # # ]
-        # predefined_records = [
-        #     {"altitude": 0.5, "temperature": 17.3, "humidity": 85},
-        #     {"altitude": 1.5, "temperature": 17.6, "humidity": 83},
-        #     {"altitude": 2.5, "temperature": 17.4, "humidity": 81},
-        #     {"altitude": 3.5, "temperature": 17.9, "humidity": 79},
-        #     {"altitude": 4.5, "temperature": 18.1, "humidity": 77},
-        #     {"altitude": 5.5, "temperature": 18.8, "humidity": 75},
-        #     {"altitude": 6.5, "temperature": 18.2, "humidity": 73},
-        #     {"altitude": 7.5, "temperature": 18.7, "humidity": 71},
-        #     {"altitude": 9.5, "temperature": 19.3, "humidity": 69},
-        #     {"altitude": 10.5, "temperature": 19.6, "humidity": 67},
-        #     {"altitude": 11.5, "temperature": 19.4, "humidity": 65},
-        #     {"altitude": 12.5, "temperature": 19.9, "humidity": 63},
-        #     {"altitude": 14.5, "temperature": 20.1, "humidity": 61},
-        #     {"altitude": 15.5, "temperature": 20.8, "humidity": 59},
-        #     {"altitude": 16.5, "temperature": 21.2, "humidity": 57},
-        #     {"altitude": 17.5, "temperature": 21.7, "humidity": 55},
-        #     {"altitude": 18.5, "temperature": 21.6, "humidity": 53},
-        #     {"altitude": 19.5, "temperature": 22.4, "humidity": 51},
-        #     {"altitude": 20.5, "temperature": 22.9, "humidity": 49},
-        #     {"altitude": 21.5, "temperature": 23.1, "humidity": 47},
-        #     {"altitude": 22.5, "temperature": 23.8, "humidity": 45},
-        #     {"altitude": 23.5, "temperature": 23.2, "humidity": 43},
-        #     {"altitude": 24.5, "temperature": 23.7, "humidity": 41},
-        #     {"altitude": 25.5, "temperature": 24.5, "humidity": 39},
-        #     {"altitude": 26.5, "temperature": 24.7, "humidity": 37},
-        #     {"altitude": 27.5, "temperature": 25.0, "humidity": 35},
-        #     {"altitude": 28.5, "temperature": 25.2, "humidity": 33},
-        #     {"altitude": 29.5, "temperature": 25.7, "humidity": 31},
-        # ]
+        predefined_records = [
+            {"altitude": 0.5, "temperature": 17.3, "humidity": 85},
+            {"altitude": 1.5, "temperature": 17.6, "humidity": 83},
+            {"altitude": 2.5, "temperature": 17.4, "humidity": 81},
+            {"altitude": 3.5, "temperature": 17.9, "humidity": 79},
+            {"altitude": 4.5, "temperature": 18.1, "humidity": 77},
+            {"altitude": 5.5, "temperature": 18.8, "humidity": 75},
+            {"altitude": 6.5, "temperature": 18.2, "humidity": 73},
+            {"altitude": 7.5, "temperature": 18.7, "humidity": 71},
+            {"altitude": 9.5, "temperature": 19.3, "humidity": 69},
+            {"altitude": 10.5, "temperature": 19.6, "humidity": 67},
+            {"altitude": 11.5, "temperature": 19.4, "humidity": 65},
+            {"altitude": 12.5, "temperature": 19.9, "humidity": 63},
+            {"altitude": 14.5, "temperature": 20.1, "humidity": 61},
+            {"altitude": 15.5, "temperature": 20.8, "humidity": 59},
+            {"altitude": 16.5, "temperature": 21.2, "humidity": 57},
+            {"altitude": 17.5, "temperature": 21.7, "humidity": 55},
+            {"altitude": 18.5, "temperature": 21.6, "humidity": 53},
+            {"altitude": 19.5, "temperature": 22.4, "humidity": 51},
+            {"altitude": 20.5, "temperature": 22.9, "humidity": 49},
+            {"altitude": 21.5, "temperature": 23.1, "humidity": 47},
+            {"altitude": 22.5, "temperature": 23.8, "humidity": 45},
+            {"altitude": 23.5, "temperature": 23.2, "humidity": 43},
+            {"altitude": 24.5, "temperature": 23.7, "humidity": 41},
+            {"altitude": 25.5, "temperature": 24.5, "humidity": 39},
+            {"altitude": 26.5, "temperature": 24.7, "humidity": 37},
+            {"altitude": 27.5, "temperature": 25.0, "humidity": 35},
+            {"altitude": 28.5, "temperature": 25.2, "humidity": 33},
+            {"altitude": 29.5, "temperature": 25.7, "humidity": 31},
+        ]
         altitude_bins = {}
 
-        for record in historical_records:
+        for record in predefined_records:
             altitude = record.get("altitude")
             temperature = record.get("temperature")
             # humidity = latest_data["WS_Data"]["Weather"].get("RH")
