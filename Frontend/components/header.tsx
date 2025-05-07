@@ -22,9 +22,10 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   headerContainer: {
+    marginTop: 20,
     backgroundColor: "#A60F2D",
     width: "100%",
-    height: 108,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
     // borderRadius: 10,

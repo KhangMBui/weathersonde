@@ -167,7 +167,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   /* Map */
   mainContainer: {
-    backgroundColor: "#EAEAEA",
+    backgroundColor: "#A60F2D",
     flex: 1,
   },
   map: {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#A20025", // iOS-style blue
+    backgroundColor: "#A60F2D",
     justifyContent: "center",
     alignItems: "center",
   },
