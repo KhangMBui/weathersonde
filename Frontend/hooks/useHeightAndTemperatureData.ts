@@ -15,7 +15,7 @@ const useHeightAndTemperatureData = (binSize = 2) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://10.0.2.246:8000/records/height_and_temperature?bin_size=${binSize}`
+          `https://9e3c-50-205-46-69.ngrok-free.app/records/height_and_temperature?bin_size=${binSize}`
         );
 
         // Map the data to extract altitude and average_temperature

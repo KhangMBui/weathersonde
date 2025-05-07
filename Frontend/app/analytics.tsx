@@ -73,7 +73,9 @@ export default function Analytics() {
   }, [generalInfo]);
   const getDroneInfo = async () => {
     try {
-      const response = await axios.get("http://10.0.2.246:8000/ws_data");
+      const response = await axios.get(
+        "https://9e3c-50-205-46-69.ngrok-free.app/ws_data"
+      );
       const {
         Date: date,
         Time: time,
@@ -114,7 +116,9 @@ export default function Analytics() {
 
   const getInversionData = async () => {
     try {
-      const response = await axios.get("http://10.0.2.246:8000/inversion");
+      const response = await axios.get(
+        "https://9e3c-50-205-46-69.ngrok-free.app/inversion"
+      );
       const data = response.data;
 
       const inversionData = {
