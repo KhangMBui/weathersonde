@@ -110,44 +110,104 @@ export default function Weather() {
     );
   }
 
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium", // Formats the date (e.g., Apr 22, 2025)
+      timeStyle: "short", // Formats the time (e.g., 12:00 AM)
+    }).format(date);
+  };
+
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
       <Text style={styles.title}>Weather Information</Text>
       <View style={styles.container}>
         {weatherData ? (
           <View style={styles.card}>
-            <Text style={styles.info}>
-              📍 Location: {droneLocation.latitude}, {droneLocation.longitude}
+            {/* <Text style={styles.info}>
+              <Text style={styles.boldText}>📍 Location: </Text>
+              {droneLocation.latitude}, {droneLocation.longitude}
             </Text>
             <Text style={styles.weatherText}>
-              🕒 Time: {weatherData.hourly.time[0].toISOString()}
+              <Text style={styles.boldText}>🕒 Time: </Text>
+              {formatTime(weatherData.hourly.time[0])}
             </Text>
             <Text style={styles.weatherText}>
-              🌡️ Temperature (80m): {weatherData.hourly.temperature80m[0]}°C
+              <Text style={styles.boldText}>🌡️ Temperature (80 m): </Text>
+              {parseFloat(weatherData.hourly.temperature80m[0]).toFixed(2)}°C
             </Text>
             <Text style={styles.weatherText}>
-              💧 Relative Humidity (2m):{" "}
+              <Text style={styles.boldText}>💧 Relative Humidity (2 m): </Text>
               {weatherData.hourly.relativeHumidity2m[0]}%
             </Text>
             <Text style={styles.weatherText}>
-              ❄️ Dew Point (2m): {weatherData.hourly.dewPoint2m[0]}°C
+              <Text style={styles.boldText}>❄️ Dew Point (2 m): </Text>
+              {parseFloat(weatherData.hourly.dewPoint2m[0]).toFixed(2)}°C
             </Text>
             <Text style={styles.weatherText}>
-              🌬️ Wind Speed (80m): {weatherData.hourly.windSpeed80m[0]} m/s
+              <Text style={styles.boldText}>🌬️ Wind Speed (80 m): </Text>
+              {parseFloat(weatherData.hourly.windSpeed80m[0]).toFixed(2)} m/s
             </Text>
             <Text style={styles.weatherText}>
-              🌱 Soil Temperature (0cm):{" "}
-              {weatherData.hourly.soilTemperature0cm[0]}°C
-            </Text>
+              <Text style={styles.boldText}>🌱 Soil Temperature: </Text>
+              {parseFloat(weatherData.hourly.soilTemperature0cm[0]).toFixed(2)}
+              °C
+            </Text> */}
+            <View style={styles.row}>
+              <Text style={styles.boldText}>📍 Location: </Text>
+              <Text style={styles.valueText}>
+                {droneLocation.latitude}, {droneLocation.longitude}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.boldText}>🕒 Time:</Text>
+              <Text style={styles.valueText}>
+                {formatTime(weatherData.hourly.time[0])}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.boldText}>🌡️ Temperature (80 m):</Text>
+              <Text style={styles.valueText}>
+                {parseFloat(weatherData.hourly.temperature80m[0]).toFixed(2)}
+                °C
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.boldText}>💧 Relative Humidity (2 m):</Text>
+              <Text style={styles.valueText}>
+                {weatherData.hourly.relativeHumidity2m[0]}%
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.boldText}>❄️ Dew Point (2 m):</Text>
+              <Text style={styles.valueText}>
+                {parseFloat(weatherData.hourly.dewPoint2m[0]).toFixed(2)}°C
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.boldText}>🌬️ Wind Speed (80 m):</Text>
+              <Text style={styles.valueText}>
+                {parseFloat(weatherData.hourly.windSpeed80m[0]).toFixed(2)} m/s
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.boldText}>🌱 Soil Temperature:</Text>
+              <Text style={styles.valueText}>
+                {parseFloat(weatherData.hourly.soilTemperature0cm[0]).toFixed(
+                  2
+                )}
+                °C
+              </Text>
+            </View>
           </View>
         ) : (
           <Text>No weather data available.</Text>
         )}
         <Footer />
       </View>
-    </>
+    </View>
   );
 }
 
@@ -158,11 +218,17 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   title: {
-    fontSize: 20,
+    backgroundColor: "#fff",
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 15,
     textAlign: "center",
-    color: "#333",
+    color: "#A20025", // WSU Crimson for a bold look
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    marginBottom: 20,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   card: {
     padding: 16,
@@ -186,5 +252,21 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 18,
     color: "red",
+  },
+  boldText: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  valueText: {
+    fontSize: 16,
+    textAlign: "right",
+    color: "#007BFF",
+    // fontWeight: "bold",
   },
 });

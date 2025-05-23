@@ -7,10 +7,11 @@ import { Stack } from "expo-router";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useUnitConversion } from "@/hooks/useUnitConversion";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export default function HomeScreen() {
   const mapRef = useRef<MapView | null>(null); // Map reference
-
+  const { temperatureUnit, distanceUnit } = useSettings();
   const [droneLocation, setDroneLocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -52,6 +53,7 @@ export default function HomeScreen() {
 
   const getDroneInfo = async () => {
     try {
+      console.log("Data is fetching.");
       const response = await axios.get(`http://10.0.2.2:8000/ws_data`);
       const {
         Date: date,
@@ -148,8 +150,9 @@ export default function HomeScreen() {
         <Text style={styles.infoText}>
           Date: {generalInfo.date}, Time: {generalInfo.time}
           {"\n"}
-          Temp: {generalInfo.airTemp}, Humidity: {generalInfo.weatherRH}, Alt:{" "}
-          {generalInfo.altitude}
+          Temp: {generalInfo.airTemp} {temperatureUnit}, RH:{" "}
+          {generalInfo.weatherRH}
+          {"%"}, Alt: {generalInfo.altitude} {distanceUnit}
         </Text>
       </View>
 
@@ -165,7 +168,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   /* Map */
   mainContainer: {
-    backgroundColor: "#EAEAEA",
+    backgroundColor: "#A60F2D",
     flex: 1,
   },
   map: {
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
   /* Relocate button */
   button: {
     position: "absolute",
-    top: 110,
+    top: 130,
     // left: "110%",
     right: "-25%",
     transform: [{ translateX: -100 }],
@@ -204,7 +207,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#A20025", // iOS-style blue
+    backgroundColor: "#A60F2D",
     justifyContent: "center",
     alignItems: "center",
   },

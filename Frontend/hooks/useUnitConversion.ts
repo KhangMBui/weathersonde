@@ -39,5 +39,28 @@ export const useUnitConversion = () => {
     return numericDistance; // Default fallback
   };
 
+  // // Always expect raw/base units: °C for temp, m for distance
+  // const convertTemperature = (tempC: number): string => {
+  //   const numericTemp = parseNumericValue(tempC);
+  //   if (temperatureUnit === "°C") {
+  //     return `${numericTemp.toFixed(2)}`;
+  //   }
+  //   if (temperatureUnit === "°F") {
+  //     return `${((numericTemp * 9) / 5 + 32).toFixed(2)}`;
+  //   }
+  //   return `${numericTemp.toFixed(2)}`;
+  // };
+
+  // const convertDistance = (meters: number): string => {
+  //   const numericDistance = parseNumericValue(meters); // Ensure the input is a number
+  //   if (distanceUnit === "m") {
+  //     return `${numericDistance.toFixed(2)}`;
+  //   }
+  //   if (distanceUnit === "ft") {
+  //     return `${(numericDistance * 3.28084).toFixed(2)}`;
+  //   }
+  //   return `${numericDistance.toFixed(2)}`;
+  // };
+
   return { convertTemperature, convertDistance };
 };

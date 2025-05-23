@@ -117,45 +117,82 @@ const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
     ? "average_temperature"
     : "average_humidity";
 
+  // // Determine the min and max values for temperature/humidity and altitude
+  // const minAltitude = Math.min(...data.map((item) => item.altitude));
+  // const maxAltitude = Math.max(...data.map((item) => item.altitude));
+  // let minX = Math.min(...data.map((item) => item[xAxisDataKey]));
+  // let maxX = Math.max(...data.map((item) => item[xAxisDataKey]));
+
+  // // Normalize the data to fit within the graph dimensions
+  // const points = data.map((item) => ({
+  //   x: 50 + ((item[xAxisDataKey] - minX) / (maxX - minX)) * 300, // Scale x-axis to fit between 50 and 350
+  //   y:
+  //     300 - ((item.altitude - minAltitude) / (maxAltitude - minAltitude)) * 250, // Scale y-axis to fit between 300 and 50
+  // }));
+
+  // // Determine the desired step size for x-axis and y-axis
+  // const xStepSize = (maxX - minX) / 5; // Divide the range into 5 steps
+  // const yStepSize = (maxAltitude - minAltitude) / 5;
+
+  // // Generate dynamic tick marks with better precision
+  // const xTicks = generateTicks(minX, maxX, xStepSize).map((tick) =>
+  //   parseFloat(tick.toFixed(3))
+  // ); // Format to 3 decimal places
+  // const yTicks = generateTicks(minAltitude, maxAltitude, yStepSize).map(
+  //   (tick) => parseFloat(tick.toFixed(1))
+  // ); // Format to 1 decimal place
+
+  // // Create a path for the line graph
+  // const path = Skia.Path.Make();
+  // if (points.length > 0) {
+  //   path.moveTo(points[0].x, points[0].y);
+  //   points.forEach((point) => {
+  //     // Handle case where all x-axis values are the same
+  //     if (minX === maxX) {
+  //       console.warn("All x-axis values are the same. Adjusting range...");
+  //       minX -= 1; // Add a small range to avoid identical x values
+  //       maxX += 1;
+  //     }
+  //     path.lineTo(point.x, point.y);
+  //   });
+  // }
+
+  // Sort data by altitude
+  const sortedData = data
+    .filter((item) => item[xAxisDataKey] !== null && item.altitude !== null) // Filter out invalid data
+    .sort((a, b) => a.altitude - b.altitude); // Sort by altitude
+
   // Determine the min and max values for temperature/humidity and altitude
-  const minAltitude = Math.min(...data.map((item) => item.altitude));
-  const maxAltitude = Math.max(...data.map((item) => item.altitude));
-  let minX = Math.min(...data.map((item) => item[xAxisDataKey]));
-  let maxX = Math.max(...data.map((item) => item[xAxisDataKey]));
+  const minAltitude = Math.min(...sortedData.map((item) => item.altitude));
+  const maxAltitude = Math.max(...sortedData.map((item) => item.altitude));
+  let minX = Math.min(...sortedData.map((item) => item[xAxisDataKey]));
+  let maxX = Math.max(...sortedData.map((item) => item[xAxisDataKey]));
 
   // Normalize the data to fit within the graph dimensions
-  const points = data.map((item) => ({
+  const points = sortedData.map((item) => ({
     x: 50 + ((item[xAxisDataKey] - minX) / (maxX - minX)) * 300, // Scale x-axis to fit between 50 and 350
     y:
       300 - ((item.altitude - minAltitude) / (maxAltitude - minAltitude)) * 250, // Scale y-axis to fit between 300 and 50
   }));
 
-  // Determine the desired step size for x-axis and y-axis
-  const xStepSize = (maxX - minX) / 5; // Divide the range into 5 steps
-  const yStepSize = (maxAltitude - minAltitude) / 5;
-
-  // Generate dynamic tick marks with better precision
-  const xTicks = generateTicks(minX, maxX, xStepSize).map((tick) =>
-    parseFloat(tick.toFixed(3))
-  ); // Format to 3 decimal places
-  const yTicks = generateTicks(minAltitude, maxAltitude, yStepSize).map(
-    (tick) => parseFloat(tick.toFixed(1))
-  ); // Format to 1 decimal place
-
   // Create a path for the line graph
   const path = Skia.Path.Make();
   if (points.length > 0) {
-    path.moveTo(points[0].x, points[0].y);
+    path.moveTo(points[0].x, points[0].y); // Start at the first point
     points.forEach((point) => {
-      // Handle case where all x-axis values are the same
-      if (minX === maxX) {
-        console.warn("All x-axis values are the same. Adjusting range...");
-        minX -= 1; // Add a small range to avoid identical x values
-        maxX += 1;
-      }
-      path.lineTo(point.x, point.y);
+      path.lineTo(point.x, point.y); // Draw a line to the next point
     });
   }
+
+  const xStepSize = (maxX - minX) / 5; // Divide the range into 5 steps
+  const xTicks = generateTicks(minX, maxX, xStepSize).map((tick) =>
+    parseFloat(tick.toFixed(3))
+  ); // Format to 3 decimal places
+
+  const yStepSize = (maxAltitude - minAltitude) / 5; // Divide the range into 5 steps
+  const yTicks = generateTicks(minAltitude, maxAltitude, yStepSize).map(
+    (tick) => parseFloat(tick.toFixed(1))
+  ); // Format to 1 decimal place
 
   return (
     <>
@@ -163,21 +200,21 @@ const LineGraph = ({ selectedTab }: { selectedTab: string }) => {
         <View style={styles.infoCardGroup}>
           <Text style={styles.titleLabel}>🌪️ Inversion Data: </Text>
           <View style={styles.infoGroup}>
-            <Text style={styles.label}>{"\t"}🔥 Inversion intensity: </Text>
+            <Text style={styles.label}>{"\t"}🔥 Intensity: </Text>
             <Text style={styles.value}>
-              {parseFloat(generalInfo.inversionIntensity).toFixed(3)}
+              {parseFloat(generalInfo.inversionIntensity).toFixed(3)} {"°C"}
             </Text>
           </View>
           <View style={styles.infoGroup}>
-            <Text style={styles.label}>{"\t"}📏 Inversion height:</Text>
+            <Text style={styles.label}>{"\t"}📏 Height:</Text>
             <Text style={styles.value}>
-              {parseFloat(generalInfo.inversionHeight).toFixed(3)}
+              {parseFloat(generalInfo.inversionHeight).toFixed(3)} {"m"}
             </Text>
           </View>
           <View style={styles.infoGroup}>
-            <Text style={styles.label}>{"\t"}📉 Inversion rate:</Text>
+            <Text style={styles.label}>{"\t"}📉 Rate:</Text>
             <Text style={styles.value}>
-              {parseFloat(generalInfo.inversionRate).toFixed(3)}
+              {parseFloat(generalInfo.inversionRate).toFixed(3)} {"°C/m"}
             </Text>
           </View>
         </View>
@@ -308,7 +345,8 @@ const styles = StyleSheet.create({
     // marginTop: 100,
     alignItems: "center",
     backgroundColor: "#fff",
-    padding: 20,
+    // padding: 20,
+    marginTop: 0,
   },
   canvas: {
     width: 400,
@@ -327,7 +365,7 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
     alignSelf: "center",
-    marginTop: 10,
+    marginTop: -3,
   },
   loadingContainer: {
     flex: 1,
@@ -384,7 +422,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   label: {
-    fontSize: 16,
+    fontSize: 16.5,
     color: "#555", // Medium gray for labels
     fontWeight: "600",
     paddingRight: 20, // Add space between label and value
@@ -392,7 +430,7 @@ const styles = StyleSheet.create({
   },
   value: {
     marginTop: 5,
-    fontSize: 14,
+    fontSize: 15,
     color: "#007BFF", // Blue for emphasis
     fontWeight: "bold",
     marginRight: -45,

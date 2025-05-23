@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Alert } from "react-native";
+import KnowledgeModal from "@/components/knowledgeModal";
 
 export default function Settings() {
   const {
@@ -45,6 +46,8 @@ export default function Settings() {
     );
   };
 
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -52,66 +55,84 @@ export default function Settings() {
       <Text style={styles.settingsTitle}>Settings</Text>
       <View style={styles.mainContainer}>
         {/* Temperature Unit */}
-        <Text style={styles.sectionHeader}>Units</Text>
-        <Text style={styles.label}>Temperature Unit</Text>
-        <View style={{ zIndex: 3000 }}>
-          <DropDownPicker
-            open={tempOpen}
-            value={temperatureUnit}
-            items={tempUnits}
-            setOpen={(open) => {
-              if (open) {
-                setTempOpen(open);
-                setDistOpen(!open);
-              } else {
-                setTempOpen(false); // Close dropdown if it's already open
-              }
-            }}
-            setValue={(callback) => {
-              setTempUnit(callback); // Update local state
-              setTempOpen(false); // Close dropdown immediately after selection
-            }}
-            style={styles.dropdown}
-            dropDownContainerStyle={styles.dropdownContainer}
-          />
+        <>
+          <Text style={styles.sectionHeader}>Units</Text>
+          <Text style={styles.label}>Temperature</Text>
+          <View style={{ zIndex: 3000 }}>
+            <DropDownPicker
+              open={tempOpen}
+              value={temperatureUnit}
+              items={tempUnits}
+              setOpen={(open) => {
+                if (open) {
+                  setTempOpen(open);
+                  setDistOpen(!open);
+                } else {
+                  setTempOpen(false); // Close dropdown if it's already open
+                }
+              }}
+              setValue={(callback) => {
+                setTempUnit(callback); // Update local state
+                setTempOpen(false); // Close dropdown immediately after selection
+              }}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+            />
+          </View>
+          {/* Distance Unit */}
+          <Text style={styles.label}>Distance</Text>
+          <View style={{ zIndex: 2000 }}>
+            <DropDownPicker
+              open={distOpen}
+              value={distanceUnit}
+              items={distanceUnits}
+              setOpen={(open) => {
+                if (open) {
+                  setDistOpen(open);
+                  setTempOpen(!open);
+                } else {
+                  setDistOpen(false); // Close dropdown if it's already open
+                }
+              }}
+              setValue={(callback) => {
+                setDistUnit(callback); // Update local state
+                setDistOpen(false); // Close dropdown immediately after selection
+              }}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.applyButton}
+            onPress={handleApplyChanges}
+          >
+            <Text style={styles.applyButtonText}>Apply Changes</Text>
+          </TouchableOpacity>
+        </>
+        {/* Separator */}
+        <View style={styles.separator} />
+        <View style={styles.knowledgeCenterContainer}>
+          <Text style={styles.sectionHeader}>Knowledge Center</Text>
+          <TouchableOpacity
+            style={styles.applyButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.applyButtonText}>Open Knowledge Center</Text>
+          </TouchableOpacity>
         </View>
-        {/* Distance Unit */}
-        <Text style={styles.label}>Distance Unit</Text>
-        <View style={{ zIndex: 2000 }}>
-          <DropDownPicker
-            open={distOpen}
-            value={distanceUnit}
-            items={distanceUnits}
-            setOpen={(open) => {
-              if (open) {
-                setDistOpen(open);
-                setTempOpen(!open);
-              } else {
-                setDistOpen(false); // Close dropdown if it's already open
-              }
-            }}
-            setValue={(callback) => {
-              setDistUnit(callback); // Update local state
-              setDistOpen(false); // Close dropdown immediately after selection
-            }}
-            style={styles.dropdown}
-            dropDownContainerStyle={styles.dropdownContainer}
-          />
-        </View>
-        <TouchableOpacity
-          style={styles.applyButton}
-          onPress={handleApplyChanges}
-        >
-          <Text style={styles.applyButtonText}>Apply Changes</Text>
-        </TouchableOpacity>
       </View>
       <Footer />
+      <KnowledgeModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
+    backgroundColor: "#fff",
     flex: 1,
     padding: 20,
     paddingTop: 0,
@@ -123,6 +144,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   settingsTitle: {
+    backgroundColor: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 15,
@@ -131,7 +153,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   applyButton: {
-    backgroundColor: "#A20025", // Dark red color
+    backgroundColor: "#A60F2D", // Dark red color
     borderRadius: 8, // Rounded corners
     paddingVertical: 12, // Vertical padding for better height
     paddingHorizontal: 20, // Horizontal padding for better width
@@ -164,4 +186,13 @@ const styles = StyleSheet.create({
     top: 55,
     zIndex: 1000,
   },
+  separator: {
+    // marginTop: 40,
+    height: 1,
+    backgroundColor: "#A20025",
+    marginVertical: 25,
+    marginBottom: -10,
+    width: "100%",
+  },
+  knowledgeCenterContainer: {},
 });
