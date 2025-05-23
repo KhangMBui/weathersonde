@@ -14,6 +14,16 @@ import { useUnitConversion } from "@/hooks/useUnitConversion";
 import { useHistoricalData } from "@/contexts/HistoricalDataContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import Constants from "expo-constants";
+import { useExportDatabase } from "@/hooks/useExportDatabase";
+import { useRecording } from "@/contexts/RecordingContext";
+
+// Database
+import {
+  initDB,
+  insertRecord,
+  fetchRecords,
+  clearRecords,
+} from "@/database/db";
 
 export default function Data() {
   const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL || "";
@@ -25,6 +35,10 @@ export default function Data() {
 
   const { temperatureUnit, distanceUnit } = useSettings();
   const { convertTemperature, convertDistance } = useUnitConversion();
+
+  // State for database recording
+  const { isRecording, setIsRecording } = useRecording();
+  const [totalSamples, setTotalSamples] = useState(0);
 
   const [generalInfo, setGeneralInfo] = useState<{
     date: string;
@@ -58,6 +72,7 @@ export default function Data() {
   // const [historicalData, setHistoricalData] = useState<any[]>([]);
 
   useEffect(() => {
+    initDB();
     let isMounted = true; // To prevent state updates on unmounted components
 
     const fetchData = async () => {
@@ -80,35 +95,110 @@ export default function Data() {
     };
   }, []);
 
-  useEffect(() => {
-    if (generalInfo.date && generalInfo.time) {
-      const newEntry = {
-        date: generalInfo.date,
-        time: generalInfo.time,
-        altitude: generalInfo.altitude, // store raw
-        internalTemp: generalInfo.internalTemp, // store raw
-        internalRH: generalInfo.internalRH,
-        internalPres: generalInfo.internalPres,
-        airTemp: generalInfo.airTemp, // store raw
-        weatherRH: generalInfo.weatherRH,
-        inversionIntensity: generalInfo.inversionIntensity,
-        inversionHeight: generalInfo.inversionHeight,
-        inversionRate: generalInfo.inversionRate,
-      };
+  // useEffect(() => {
+  //   if (isRecording && generalInfo.date && generalInfo.time) {
+  //     const newEntry = {
+  //       date: generalInfo.date,
+  //       time: generalInfo.time,
+  //       altitude: generalInfo.altitude, // store raw
+  //       internalTemp: generalInfo.internalTemp, // store raw
+  //       internalRH: generalInfo.internalRH,
+  //       internalPres: generalInfo.internalPres,
+  //       airTemp: generalInfo.airTemp, // store raw
+  //       weatherRH: generalInfo.weatherRH,
+  //       inversionIntensity: generalInfo.inversionIntensity,
+  //       inversionHeight: generalInfo.inversionHeight,
+  //       inversionRate: generalInfo.inversionRate,
+  //     };
 
-      setHistoricalData((prevData) => {
-        const isDuplicate = prevData.some(
-          (entry) =>
-            entry.date === newEntry.date && entry.time === newEntry.time
-        );
-        if (isDuplicate) {
-          return prevData;
+  //     // Save to SQLite and update state
+  //     (async () => {
+  //       await insertRecord(newEntry);
+  //       setTotalSamples((prev) => prev + 1);
+  //       // Optionally, fetch the latest records to update UI immediately
+  //       const records = await fetchRecords();
+  //       setHistoricalData(records);
+  //     })();
+
+  //     // setHistoricalData((prevData) => {
+  //     //   const isDuplicate = prevData.some(
+  //     //     (entry) =>
+  //     //       entry.date === newEntry.date && entry.time === newEntry.time
+  //     //   );
+  //     //   if (isDuplicate) {
+  //     //     return prevData;
+  //     //   }
+  //     //   setTotalSamples((prev) => prev + 1);
+  //     //   const updatedData = [newEntry, ...prevData];
+  //     //   return updatedData.slice(0, 20);
+  //     // });
+  //   }
+  // }, [generalInfo, isRecording, setHistoricalData]);
+
+  useEffect(() => {
+    if (isRecording && generalInfo.date && generalInfo.time) {
+      (async () => {
+        const records = await fetchRecords();
+        const last = records[0];
+        const newEntry = {
+          date: generalInfo.date,
+          time: generalInfo.time,
+          altitude: generalInfo.altitude ?? 0,
+          internalTemp: generalInfo.internalTemp ?? 0,
+          internalRH: generalInfo.internalRH,
+          internalPres: generalInfo.internalPres,
+          airTemp: generalInfo.airTemp ?? 0,
+          weatherRH: generalInfo.weatherRH,
+          inversionIntensity: generalInfo.inversionIntensity,
+          inversionHeight: generalInfo.inversionHeight,
+          inversionRate: generalInfo.inversionRate,
+        };
+
+        // Only insert if not duplicate or not "too similar"
+        const isDuplicate =
+          last && last.date === newEntry.date && last.time === newEntry.time;
+
+        // Optionally, check for "too similar" (e.g., all fields are the same)
+        const isTooSimilar =
+          last &&
+          Math.abs(last.altitude - newEntry.altitude) < 0.01 &&
+          Math.abs((last.internalTemp ?? 0) - newEntry.internalTemp) < 0.01 &&
+          last.internalRH === newEntry.internalRH &&
+          last.internalPres === newEntry.internalPres &&
+          Math.abs((last.airTemp ?? 0) - newEntry.airTemp) < 0.01 &&
+          last.weatherRH === newEntry.weatherRH;
+
+        if (!isDuplicate && !isTooSimilar) {
+          await insertRecord(newEntry);
+          setTotalSamples((prev) => prev + 1);
+          const updatedRecords = await fetchRecords();
+          setHistoricalData(updatedRecords);
         }
-        const updatedData = [newEntry, ...prevData];
-        return updatedData.slice(0, 20);
-      });
+      })();
     }
-  }, [generalInfo]);
+  }, [generalInfo, isRecording, setHistoricalData]);
+
+  // --- Update totalSamples in generalInfo for display ---
+  useEffect(() => {
+    setGeneralInfo((prev) => ({
+      ...prev,
+      totalSamples: totalSamples.toString(),
+    }));
+  }, [totalSamples]);
+
+  useEffect(() => {
+    if (selectedTab === "Historical") {
+      (async () => {
+        const records = await fetchRecords();
+        setHistoricalData(records);
+      })();
+    }
+  }, [selectedTab]);
+  // useEffect(() => {
+  //   if (selectedTab === "Historical") {
+  //     fetchRecords(setHistoricalData);
+  //   }
+  // }, [selectedTab]);
 
   const getDroneInfo = async () => {
     try {
@@ -126,20 +216,34 @@ export default function Data() {
       } = response.data;
 
       // Convert values based on global units
-      const convertedAltitude = convertDistance(altitude);
-      const convertedInternalTemp = convertTemperature(internalTemp);
-      const convertedAirTemp = convertTemperature(airTemp);
+      // const convertedAltitude = convertDistance(altitude);
+      // const convertedInternalTemp = convertTemperature(internalTemp);
+      // const convertedAirTemp = convertTemperature(airTemp);
 
+      // const snapshot = {
+      //   date,
+      //   time,
+      //   latitude,
+      //   longitude,
+      //   altitude: convertedAltitude,
+      //   internalTemp: convertedInternalTemp,
+      //   internalRH,
+      //   internalPres,
+      //   airTemp: convertedAirTemp,
+      //   weatherRH,
+      // };
+
+      // Store raw values only!
       const snapshot = {
         date,
         time,
         latitude,
         longitude,
-        altitude: convertedAltitude,
-        internalTemp: convertedInternalTemp,
+        altitude,
+        internalTemp,
         internalRH,
         internalPres,
-        airTemp: convertedAirTemp,
+        airTemp,
         weatherRH,
       };
 
@@ -177,6 +281,17 @@ export default function Data() {
       console.error("Error fetching inversion data:", error);
     }
   };
+
+  // --- Filter unique records by date and time before rendering ---
+  const uniqueHistoricalData = [];
+  const seen = new Set();
+  for (const item of historicalData) {
+    const key = `${item.date}-${item.time}`;
+    if (!seen.has(key)) {
+      uniqueHistoricalData.push(item);
+      seen.add(key);
+    }
+  }
 
   return (
     <>
@@ -271,76 +386,133 @@ export default function Data() {
             </View>
           </View>
         ) : (
-          <ScrollView
-            style={{ padding: 10 }}
-            contentContainerStyle={{ paddingBottom: 80 }}
-          >
-            {/* <Text style={styles.infoTitle}>WeatherSonde Historical</Text> */}
-            {historicalData.map((item, index) => {
-              const uniqueId = `${item.date}-${item.time}`;
-              return (
-                <View key={uniqueId} style={styles.infoCard}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      setExpandedItem(
-                        expandedItem === uniqueId ? null : uniqueId
-                      )
-                    }
-                  >
-                    <Text style={styles.value}>
-                      📅 Date: {item.date} 🕒 Time: {item.time}
-                      {"\n"}
-                      ⛰️ Altitude:{" "}
-                      {item.altitude !== null
-                        ? convertDistance(item.altitude)
-                        : "N/A"}{" "}
-                      {distanceUnit}
-                      {expandedItem === uniqueId && (
-                        <>
-                          {"\n"}
-                          🌡️ Internal Temp:{" "}
-                          {item.internalTemp !== null
-                            ? convertTemperature(item.internalTemp)
-                            : "N/A"}{" "}
-                          {temperatureUnit}
-                          {"\n"}
-                          💧 Internal RH: {item.internalRH} %{"\n"}
-                          📊 Internal Pressure: {item.internalPres}
-                          {"\n"}
-                          🌤️ Air Temp:{" "}
-                          {item.airTemp !== null
-                            ? convertTemperature(item.airTemp)
-                            : "N/A"}{" "}
-                          {temperatureUnit}
-                          {"\n"}
-                          💦 RH: {item.weatherRH} %{"\n"}
-                          🔥 Inversion Intensity:{" "}
-                          {parseFloat(item.inversionIntensity).toFixed(2) ??
-                            NaN}{" "}
-                          {"°C"}
-                          {"\n"}
-                          📏 Inversion Height:{" "}
-                          {parseFloat(item.inversionHeight).toFixed(2) ??
-                            NaN}{" "}
-                          {"m"}
-                          {"\n"}
-                          📉 Inversion Rate:{" "}
-                          {parseFloat(item.inversionRate).toFixed(2) ??
-                            NaN}{" "}
-                          {"°C/m"}
-                        </>
-                      )}
-                    </Text>
-                    <Text style={styles.expandText}>
-                      {expandedItem === uniqueId
-                        ? "Show Less ▲"
-                        : "Show More ▼"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
-          </ScrollView>
+          <>
+            {/* --- Records Button --- */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: isRecording ? "#900C3F" : "#A60F2D",
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  borderRadius: 8,
+                  margin: 10,
+                  alignItems: "center",
+                  width: "30%",
+                }}
+                onPress={() => setIsRecording((prev) => !prev)}
+              >
+                <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                  {isRecording ? "Stop Recording" : "Records"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#007BFF",
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  borderRadius: 8,
+                  margin: 10,
+                  alignItems: "center",
+                  width: "30%",
+                }}
+                onPress={useExportDatabase}
+              >
+                <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                  Export Database
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#FF4136",
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  borderRadius: 8,
+                  margin: 10,
+                  alignItems: "center",
+                  width: "30%",
+                }}
+                onPress={async () => {
+                  await clearRecords();
+                  setTotalSamples(0);
+                  setHistoricalData([]);
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                  Clear Database
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              style={{ padding: 10 }}
+              contentContainerStyle={{ paddingBottom: 80 }}
+            >
+              {/* <Text style={styles.infoTitle}>WeatherSonde Historical</Text> */}
+              {uniqueHistoricalData.map((item) => {
+                // const uniqueId = `${item.date}-${item.time}`;
+                return (
+                  <View key={item.id} style={styles.infoCard}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setExpandedItem(
+                          expandedItem === item.id ? null : item.id
+                        )
+                      }
+                    >
+                      <Text style={styles.value}>
+                        📅 Date: {item.date} 🕒 Time: {item.time}
+                        {"\n"}
+                        ⛰️ Altitude:{" "}
+                        {item.altitude !== null
+                          ? convertDistance(item.altitude)
+                          : "N/A"}{" "}
+                        {distanceUnit}
+                        {expandedItem === item.id && (
+                          <>
+                            {"\n"}
+                            🌡️ Internal Temp:{" "}
+                            {item.internalTemp !== null
+                              ? convertTemperature(item.internalTemp)
+                              : "N/A"}{" "}
+                            {temperatureUnit}
+                            {"\n"}
+                            💧 Internal RH: {item.internalRH} %{"\n"}
+                            📊 Internal Pressure: {item.internalPres}
+                            {"\n"}
+                            🌤️ Air Temp:{" "}
+                            {item.airTemp !== null
+                              ? convertTemperature(item.airTemp)
+                              : "N/A"}{" "}
+                            {temperatureUnit}
+                            {"\n"}
+                            💦 RH: {item.weatherRH} %{"\n"}
+                            🔥 Inversion Intensity:{" "}
+                            {parseFloat(item.inversionIntensity).toFixed(2) ??
+                              NaN}{" "}
+                            {"°C"}
+                            {"\n"}
+                            📏 Inversion Height:{" "}
+                            {parseFloat(item.inversionHeight).toFixed(2) ??
+                              NaN}{" "}
+                            {"m"}
+                            {"\n"}
+                            📉 Inversion Rate:{" "}
+                            {parseFloat(item.inversionRate).toFixed(2) ??
+                              NaN}{" "}
+                            {"°C/m"}
+                          </>
+                        )}
+                      </Text>
+                      <Text style={styles.expandText}>
+                        {expandedItem === item.id
+                          ? "Show Less ▲"
+                          : "Show More ▼"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </>
         )}
         {/* 
       <SensorModal
@@ -416,5 +588,10 @@ const styles = StyleSheet.create({
     color: "#007BFF",
     marginTop: 5,
     textAlign: "right",
+  },
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
   },
 });
