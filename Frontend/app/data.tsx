@@ -396,6 +396,7 @@ export default function Data() {
                   paddingBottom: 10,
                   borderRadius: 8,
                   margin: 10,
+                  marginRight: 0,
                   alignItems: "center",
                   width: "30%",
                 }}
@@ -427,6 +428,7 @@ export default function Data() {
                   paddingTop: 10,
                   paddingBottom: 10,
                   borderRadius: 8,
+                  marginLeft: 0,
                   margin: 10,
                   alignItems: "center",
                   width: "30%",
