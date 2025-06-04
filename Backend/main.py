@@ -350,7 +350,7 @@ def get_height_and_temperature(bin_size: int = 1):
         ]
         altitude_bins = {}
 
-        for record in predefined_records:
+        for record in historical_records:
             altitude = record.get("altitude")
             temperature = record.get("temperature")
             # humidity = latest_data["WS_Data"]["Weather"].get("RH")

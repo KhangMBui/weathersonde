@@ -1,4 +1,10 @@
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
 import { Stack } from "expo-router";
 import { useState, useEffect } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -7,6 +13,8 @@ import Header from "@/components/header";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Alert } from "react-native";
 import KnowledgeModal from "@/components/knowledgeModal";
+import AuthorsModal from "@/components/authorsModal";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function Settings() {
   const {
@@ -46,7 +54,8 @@ export default function Settings() {
     );
   };
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [knowledgeModalVisible, setKnowledgeModalVisible] = useState(false);
+  const [authorsModalVisible, setAuthorsModalVisible] = useState(false);
 
   return (
     <>
@@ -106,6 +115,16 @@ export default function Settings() {
             style={styles.applyButton}
             onPress={handleApplyChanges}
           >
+            <MaterialCommunityIcons
+              name="check-circle"
+              size={20}
+              color="#fff"
+            />
+            {/* <MaterialCommunityIcons
+              name="cog"
+              size={20}
+              color="#fff"
+            /> */}
             <Text style={styles.applyButtonText}>Apply Changes</Text>
           </TouchableOpacity>
         </>
@@ -115,16 +134,63 @@ export default function Settings() {
           <Text style={styles.sectionHeader}>Knowledge Center</Text>
           <TouchableOpacity
             style={styles.applyButton}
-            onPress={() => setModalVisible(true)}
+            onPress={() => setKnowledgeModalVisible(true)}
           >
+            <MaterialCommunityIcons
+              name="book-open-variant"
+              size={20}
+              color="#fff"
+            />
             <Text style={styles.applyButtonText}>Open Knowledge Center</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.separator} />
+        <View style={styles.knowledgeCenterContainer}>
+          <Text style={styles.sectionHeader}>Credits</Text>
+          <TouchableOpacity
+            style={styles.applyButton}
+            onPress={() => setAuthorsModalVisible(true)}
+          >
+            <MaterialCommunityIcons
+              name="account-group"
+              size={20}
+              color="#fff"
+            />
+            <Text style={styles.applyButtonText}>Authors</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.separator} />
+        <View style={styles.knowledgeCenterContainer}>
+          <Text style={styles.sectionHeader}>
+            Learn more about AgWeatherNet
+          </Text>
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() =>
+              Linking.openURL(
+                "https://treefruit.wsu.edu/tools-resources/wsu-agweathernet/"
+              )
+            }
+          >
+            <MaterialCommunityIcons
+              name="open-in-new"
+              size={20}
+              color="#A60F2D"
+            />
+            <Text style={styles.linkButtonText}>
+              Visit AgWeatherNet Website
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
       <Footer />
       <KnowledgeModal
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
+        modalVisible={knowledgeModalVisible}
+        setModalVisible={setKnowledgeModalVisible}
+      />
+      <AuthorsModal
+        modalVisible={authorsModalVisible}
+        setModalVisible={setAuthorsModalVisible}
       />
     </>
   );
@@ -165,6 +231,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3, // Shadow for Android
+    display: "flex",
+    flexDirection: "row",
+    gap: 5,
   },
   applyButtonText: {
     color: "#fff", // White text for contrast
@@ -195,4 +264,23 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   knowledgeCenterContainer: {},
+  linkButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#A60F2D",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginTop: 20,
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+  linkButtonText: {
+    color: "#A60F2D",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 8,
+    textDecorationLine: "underline",
+  },
 });

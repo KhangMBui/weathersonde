@@ -5,16 +5,16 @@ export default function Header() {
     <View style={styles.headerContainer}>
       <View style={styles.contentContainer}>
         <Text style={styles.appTitle}>WSU WeatherSonde</Text>
-        <View style={styles.logoContainer}>
+        {/* <View style={styles.logoContainer}>
           <Image
             source={require("./../assets/images/final-logo-2.png")}
             style={styles.combinedLogo}
           ></Image>
-          {/* <Image
-          source={require("./../assets/images/AGAID-logo.png")}
-          style={styles.agaidLogo}
-        ></Image> */}
-        </View>
+          <Image
+            source={require("./../assets/images/AGAID-logo.png")}
+            style={styles.agaidLogo}
+          ></Image>
+        </View> */}
       </View>
     </View>
   );
@@ -25,7 +25,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: "#A60F2D",
     width: "100%",
-    height: 100,
+    // height: 100,
+    height: 60,
     justifyContent: "center",
     alignItems: "center",
     // borderRadius: 10,
@@ -44,7 +45,8 @@ const styles = StyleSheet.create({
     // textTransform: "uppercase",
     // letterSpacing: 1,
     fontSize: 24,
-    marginTop: 16,
+    // marginTop: 16,
+    marginTop: 50,
     color: "#ffffff",
     fontWeight: "bold",
     textTransform: "uppercase",
