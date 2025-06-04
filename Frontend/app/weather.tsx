@@ -75,6 +75,8 @@ export default function Weather() {
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setError("Failed to fetch weather data.");
+    } finally {
+      setLoading(false); // Always stop loading
     }
   };
 

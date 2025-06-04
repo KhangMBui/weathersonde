@@ -16,6 +16,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import Constants from "expo-constants";
 import { useExportDatabase } from "@/hooks/useExportDatabase";
 import { useRecording } from "@/contexts/RecordingContext";
+import * as Linking from "expo-linking";
 
 // Database
 import {
@@ -26,7 +27,35 @@ import {
 } from "@/database/db";
 
 export default function Data() {
-  const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL || "";
+  const BACKEND_URL =
+    Constants.expoConfig?.extra?.BACKEND_URL || "http://10.0.2.2:8000";
+
+  /* Backend Database */
+  // Post a new record to backend
+  // const postRecord = async (record: any) => {
+  //   try {
+  //     await axios.post(`${BACKEND_URL}/records`, record);
+  //   } catch (error: any) {
+  //     console.error("Failed to post record:", error?.response?.data || error);
+  //   }
+  // };
+
+  // // Fetch records from backend
+  // const fetchRecords = async () => {
+  //   const response = await axios.get(`${BACKEND_URL}/records`);
+  //   return response.data;
+  // };
+
+  // // Clear all records in backend
+  // const clearRecords = async () => {
+  //   await axios.delete(`${BACKEND_URL}/records`);
+  // };
+
+  // const handleExport = () => {
+  //   Linking.openURL(`${BACKEND_URL}/records/export`);
+  // };
+
+  /* */
 
   const { historicalData, setHistoricalData } = useHistoricalData();
 
@@ -95,88 +124,106 @@ export default function Data() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (isRecording && generalInfo.date && generalInfo.time) {
-  //     const newEntry = {
-  //       date: generalInfo.date,
-  //       time: generalInfo.time,
-  //       altitude: generalInfo.altitude, // store raw
-  //       internalTemp: generalInfo.internalTemp, // store raw
-  //       internalRH: generalInfo.internalRH,
-  //       internalPres: generalInfo.internalPres,
-  //       airTemp: generalInfo.airTemp, // store raw
-  //       weatherRH: generalInfo.weatherRH,
-  //       inversionIntensity: generalInfo.inversionIntensity,
-  //       inversionHeight: generalInfo.inversionHeight,
-  //       inversionRate: generalInfo.inversionRate,
-  //     };
-
-  //     // Save to SQLite and update state
-  //     (async () => {
-  //       await insertRecord(newEntry);
-  //       setTotalSamples((prev) => prev + 1);
-  //       // Optionally, fetch the latest records to update UI immediately
-  //       const records = await fetchRecords();
-  //       setHistoricalData(records);
-  //     })();
-
-  //     // setHistoricalData((prevData) => {
-  //     //   const isDuplicate = prevData.some(
-  //     //     (entry) =>
-  //     //       entry.date === newEntry.date && entry.time === newEntry.time
-  //     //   );
-  //     //   if (isDuplicate) {
-  //     //     return prevData;
-  //     //   }
-  //     //   setTotalSamples((prev) => prev + 1);
-  //     //   const updatedData = [newEntry, ...prevData];
-  //     //   return updatedData.slice(0, 20);
-  //     // });
-  //   }
-  // }, [generalInfo, isRecording, setHistoricalData]);
-
   useEffect(() => {
     if (isRecording && generalInfo.date && generalInfo.time) {
+      const newEntry = {
+        date: generalInfo.date,
+        time: generalInfo.time,
+        altitude: generalInfo.altitude, // store raw
+        internalTemp: generalInfo.internalTemp, // store raw
+        internalRH: generalInfo.internalRH,
+        internalPres: generalInfo.internalPres,
+        airTemp: generalInfo.airTemp, // store raw
+        weatherRH: generalInfo.weatherRH,
+        inversionIntensity: generalInfo.inversionIntensity,
+        inversionHeight: generalInfo.inversionHeight,
+        inversionRate: generalInfo.inversionRate,
+      };
+
+      // Save to SQLite and update state
       (async () => {
+        await insertRecord(newEntry);
+        setTotalSamples((prev) => prev + 1);
+        // Optionally, fetch the latest records to update UI immediately
         const records = await fetchRecords();
-        const last = records[0];
-        const newEntry = {
-          date: generalInfo.date,
-          time: generalInfo.time,
-          altitude: generalInfo.altitude ?? 0,
-          internalTemp: generalInfo.internalTemp ?? 0,
-          internalRH: generalInfo.internalRH,
-          internalPres: generalInfo.internalPres,
-          airTemp: generalInfo.airTemp ?? 0,
-          weatherRH: generalInfo.weatherRH,
-          inversionIntensity: generalInfo.inversionIntensity,
-          inversionHeight: generalInfo.inversionHeight,
-          inversionRate: generalInfo.inversionRate,
-        };
-
-        // Only insert if not duplicate or not "too similar"
-        const isDuplicate =
-          last && last.date === newEntry.date && last.time === newEntry.time;
-
-        // Optionally, check for "too similar" (e.g., all fields are the same)
-        const isTooSimilar =
-          last &&
-          Math.abs(last.altitude - newEntry.altitude) < 0.01 &&
-          Math.abs((last.internalTemp ?? 0) - newEntry.internalTemp) < 0.01 &&
-          last.internalRH === newEntry.internalRH &&
-          last.internalPres === newEntry.internalPres &&
-          Math.abs((last.airTemp ?? 0) - newEntry.airTemp) < 0.01 &&
-          last.weatherRH === newEntry.weatherRH;
-
-        if (!isDuplicate && !isTooSimilar) {
-          await insertRecord(newEntry);
-          setTotalSamples((prev) => prev + 1);
-          const updatedRecords = await fetchRecords();
-          setHistoricalData(updatedRecords);
-        }
+        setHistoricalData(records);
       })();
+
+      // setHistoricalData((prevData) => {
+      //   const isDuplicate = prevData.some(
+      //     (entry) =>
+      //       entry.date === newEntry.date && entry.time === newEntry.time
+      //   );
+      //   if (isDuplicate) {
+      //     return prevData;
+      //   }
+      //   setTotalSamples((prev) => prev + 1);
+      //   const updatedData = [newEntry, ...prevData];
+      //   return updatedData.slice(0, 20);
+      // });
     }
   }, [generalInfo, isRecording, setHistoricalData]);
+
+  // useEffect(() => {
+  //   if (isRecording && generalInfo.date && generalInfo.time) {
+  //     (async () => {
+  //       const records = await fetchRecords();
+  //       const last = records[0];
+  //       const newEntry = {
+  //         date: generalInfo.date,
+  //         time: generalInfo.time,
+  //         altitude: generalInfo.altitude ?? 0,
+  //         internalTemp: generalInfo.internalTemp ?? 0,
+  //         internalRH:
+  //           generalInfo.internalRH !== undefined
+  //             ? String(generalInfo.internalRH)
+  //             : "",
+  //         internalPres: generalInfo.internalPres || "",
+  //         airTemp: generalInfo.airTemp ?? 0,
+  //         weatherRH:
+  //           generalInfo.weatherRH !== undefined
+  //             ? String(generalInfo.weatherRH)
+  //             : "",
+  //         inversionIntensity:
+  //           generalInfo.inversionIntensity !== undefined &&
+  //           generalInfo.inversionIntensity !== ""
+  //             ? Number(generalInfo.inversionIntensity)
+  //             : 0,
+  //         inversionHeight:
+  //           generalInfo.inversionHeight !== undefined &&
+  //           generalInfo.inversionHeight !== ""
+  //             ? Number(generalInfo.inversionHeight)
+  //             : 0,
+  //         inversionRate:
+  //           generalInfo.inversionRate !== undefined &&
+  //           generalInfo.inversionRate !== ""
+  //             ? Number(generalInfo.inversionRate)
+  //             : 0,
+  //       };
+  //       // Only insert if not duplicate or not "too similar"
+  //       const isDuplicate =
+  //         last && last.date === newEntry.date && last.time === newEntry.time;
+
+  //       // Optionally, check for "too similar" (e.g., all fields are the same)
+  //       const isTooSimilar =
+  //         last &&
+  //         Math.abs(last.altitude - newEntry.altitude) < 0.01 &&
+  //         Math.abs((last.internalTemp ?? 0) - newEntry.internalTemp) < 0.01 &&
+  //         last.internalRH === newEntry.internalRH &&
+  //         last.internalPres === newEntry.internalPres &&
+  //         Math.abs((last.airTemp ?? 0) - newEntry.airTemp) < 0.01 &&
+  //         last.weatherRH === newEntry.weatherRH;
+
+  //       if (!isDuplicate && !isTooSimilar) {
+  //         await insertRecord(newEntry);
+  //         // await postRecord(newEntry);
+  //         setTotalSamples((prev) => prev + 1);
+  //         const updatedRecords = await fetchRecords();
+  //         setHistoricalData(updatedRecords);
+  //       }
+  //     })();
+  //   }
+  // }, [generalInfo, isRecording, setHistoricalData]);
 
   // --- Update totalSamples in generalInfo for display ---
   useEffect(() => {
@@ -417,6 +464,7 @@ export default function Data() {
                   width: "30%",
                 }}
                 onPress={useExportDatabase}
+                // onPress={handleExport}
               >
                 <Text style={{ color: "#fff", fontWeight: "bold" }}>
                   Export Database

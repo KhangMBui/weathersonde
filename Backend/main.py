@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+import csv
+import io
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import threading
+from fastapi.responses import StreamingResponse
 import serial
 import json
 import uvicorn
@@ -8,6 +11,8 @@ import time
 from threading import Lock
 from typing import Dict, List, Optional
 import serial.tools.list_ports
+from db import init_db, insert_record, fetch_records, clear_records
+from pydantic import BaseModel
  
 app = FastAPI()
  
@@ -19,6 +24,58 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+init_db()
+
+class Record(BaseModel):
+    date: str
+    time: str
+    altitude: float
+    internalTemp: float
+    internalRH: str
+    internalPres: str
+    airTemp: float
+    weatherRH: str
+    inversionIntensity: str
+    inversionHeight: str
+    inversionRate: str
+
+@app.post("/records")
+def add_record(record: Record):
+    print("Record: ", record)
+    try:
+        insert_record(record.model_dump())
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/records")
+def get_records(limit: int = 20):
+    try:
+        return fetch_records(limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/records")
+def delete_records():
+    try:
+        clear_records()
+        return {"status": "cleared"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/records/export")
+def export_records():
+    records = fetch_records(limit=10000)  # or any limit you want
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=records[0].keys() if records else [])
+    writer.writeheader()
+    for row in records:
+        writer.writerow(row)
+    output.seek(0)
+    return StreamingResponse(output, media_type="text/csv", headers={
+        "Content-Disposition": "attachment; filename=weathersonde_records.csv"
+    })
  
 # Thread-safe data access
 data_lock = Lock()
